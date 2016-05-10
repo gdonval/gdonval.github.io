@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Is the multi-armed bandit method always better at maximizing the reward?</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">And yet it moves! </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/data-processing.html">Data processing</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/pros-of-mab-strategy.html" rel="bookmark"
+           title="Permalink to Is the multi-armed bandit method always better at maximizing the reward?">Is the multi-armed bandit method always better at maximizing the&nbsp;reward?</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2016-06-03T14:59:00+01:00">
+                Published: ven. 03 juin 2016
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/gael.html">Gaël</a>
+        </address>
+<p>In <a href="/category/data-processing.html">Data processing</a>.</p>
+
+</footer><!-- /.post-info -->      <p>This post is the fifth technical post of the <a href="/toc-ab-testing-vs-multi-armed-bandit.html">series</a>.</p>
+<p><em>We just showed that the <a href="{filename06-pros_of_AB.md}">A/B testing method has a number of 
+advantages</a> over the multi-armed bandit strategy.
+At this stage, let us not forget that the multi-armed bandit strategy was
+designed to maximize the reward and that it is claimed to behave well in
+a set-and-forget mode. Therefore that strategy could require larger sample
+sizes and yet provide higher click-through rates. This is what we are going
+to&nbsp;investigate.</em></p>
+<h1>The multi-armed bandit strategy tends to maximize the&nbsp;reward</h1>
+<p>The multi-armed bandit strategy has been developed to maximize the reward.
+In our specific case of website optimization, this means that it should yield
+the highest number of clicks&nbsp;overall.</p>
+<p>In the A/B testing framework, a testing campaign is generally divided into two&nbsp;stages:</p>
+<ul>
+<li>a <em>testing</em> stage where the data is gathered (and&nbsp;analysed);</li>
+<li>an <em>exploitation</em> stage where the best performing variant is always&nbsp;served.</li>
+</ul>
+<p>We can apply that complete process to the multi-armed bandit strategy to
+compare the methods in similar&nbsp;conditions:</p>
+<p><center>
+<img alt="Here should be a figure (try with another web browser).
+There are two distributions of the total number of clicks
+per campaign. The multi-armed bandit strategy does provide a
+higher number of clicks.
+" src="/images/dist_nclicks.svg" />
+</center></p>
+<p>The two distributions are Gaussian-shaped (therefore we can apply the normal
+approximation). The distribution arising from the A/B testing data-gathering
+method is mainly located below the distribution arising from the multi-armed
+bandit&nbsp;method.</p>
+<p>In that sense, the multi-armed bandit method does seem to maximize the&nbsp;reward.</p>
+<h1>But is the comparison&nbsp;fair?</h1>
+<p>But as we have showed in the <a href="/pros-of-ab-testing.html">previous post</a>,
+that comparison is unfair because the A/B testing method provides much more
+confidence guarantees at that sample size than the multi-armed bandit method
+does. Comparing apples to apples would require&nbsp;either:</p>
+<ul>
+<li>that we choose a sample
+  size around <em>5 times</em> smaller in the A/B testing framework to provide the same
+  power as in the multi-armed bandit&nbsp;framework;</li>
+<li><em>or</em> that we use <span class="math">\(300\)</span> trials in the A/B testing framework instead of <span class="math">\(600\)</span>
+  if we want to provide the same probability of finding the best&nbsp;variant.</li>
+</ul>
+<p>This is what happens when the latter is&nbsp;done:</p>
+<p><center>
+<img alt="Here should be a figure (try with another web browser).
+There are two distributions of the total number of clicks
+per campaign with the sample size in the testing stage
+chosen to provide the same probability to be correct.
+" src="/images/dist_nclicks_mod.svg" />
+</center></p>
+<p>We chose the sample size in the testing stage so that both methods have
+roughly the same probability to select the best-performing variant. As it 
+turned out, the two distributions are almost perfectly&nbsp;superimposed.</p>
+<p>Isn&#8217;t that cheating? It like comparing insurances: you can
+blindly go to the cheapest or you could go to the 
+cheapest providing equivalent guarantees. Is it fair to compare the price of
+an insurance which covers only the damage you have done to third-parties
+to one which covers your health and&nbsp;goods?</p>
+<p>That said, we cannot conclude that A/B testing can generally beat (or even match)
+the multi-armed bandit strategy from these data alone: the 
+<a href="/big-picture.html">next post</a>
+will
+be dedicated to that. All we can say is that the claim that the multi-armed
+bandit strategy is always better than the A/B testing data-gathering method
+is not that strong&nbsp;anymore.</p>
+<h1>Can we really set and forget the multi-armed bandit&nbsp;strategy?</h1>
+<p>Another way of solving that problem, as stated in the
+<a href="http://stevehanov.ca/blog/index.php?id=132">blog post</a>
+is to &#8220;set and forget&#8221; the multi-armed bandit algorithm. 
+And this turned out to be rather&nbsp;disappointing:</p>
+<p><center>
+<img alt="Here should be a figure (try with another web browser).
+There are two distributions of the total number of clicks
+per campaign in AB testing and in the multi-armed bandit
+strategy in the &quot;set and forget&quot; mode. AB testing gives higher
+numbers of clicks.
+" src="/images/dist_nclicks_SAF.svg" />
+</center></p>
+<p>This time, the A/B testing distribution of values is located at an higher point
+than the corresponding multi-armed bandit method in the set-and-forget mode.
+Yet, this comparison was reverted to equal sample sizes so the A/B testing
+method even provides higher guarantees at the same&nbsp;time!</p>
+<p><em>In this post, we showed that the multi-armed bandit strategy does not always
+provide a higher reward than the A/B testing data-gathering strategy does
+unlike what has been claimed in the original blog post. This could be
+considered as yet another proof that this kind of posts really lacks&nbsp;nuances.</em></p>
+<p><em>However we have really not proved anything here: we have merely showed some
+counter-examples. That is why the
+<a href="/big-picture.html">next post</a>
+is dedicated to a more exhaustive study to assess when the A/B testing method
+is more efficient at gathering clicks than the multi-armed bandit method 
+(and&nbsp;vice-versa).</em></p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

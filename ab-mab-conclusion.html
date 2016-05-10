@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Conclusion</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">And yet it moves! </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/data-processing.html">Data processing</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/ab-mab-conclusion.html" rel="bookmark"
+           title="Permalink to Conclusion">Conclusion</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2016-06-10T14:05:00+01:00">
+                Published: ven. 10 juin 2016
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/gael.html">Gaël</a>
+        </address>
+<p>In <a href="/category/data-processing.html">Data processing</a>.</p>
+
+</footer><!-- /.post-info -->      <p>This post is the seventh (and final) technical post of the <a href="/toc-ab-testing-vs-multi-armed-bandit.html">series</a>.</p>
+<p><em>We saw in the <a href="/big-picture.html">previous post</a> that the
+multi-armed bandit strategy is not always yielding higher click-through rates
+overall. A well designed A/B testing campaign can do as well or better
+in less&nbsp;time.</em></p>
+<p><em>But before concluding, we need to talk about one last thing:&nbsp;uncertainties.</em></p>
+<h1>Uncertainties</h1>
+<p>All the calculations we have performed in the previous post were averaged
+over a large number of repetitions (typically <span class="math">\(5000\)</span> per point, be it a point
+on a curve or a patch on an image). We were allowed to do this because the data
+were distributed normally and this allowed us to get very precise values with
+a very low&nbsp;uncertainty.</p>
+<p>We provided error bands in each of our graphs and actually, the color map in
+the images were adjusted so that the not-significant values appeared white.
+This is also the reason why we did not provide actual values of difference but
+and used a qualitative&nbsp;scale.</p>
+<p>For instance, we can compare one&nbsp;image:</p>
+<p><center>
+<img alt="Here should be a figure (try with another web browser).
+" src="/images/diff_vs_sample_size_vs_tot.svg" />
+</center></p>
+<p>with its corresponding significance&nbsp;map:</p>
+<p><center>
+<img alt="Here should be a figure (try with another web browser).
+" src="/images/diff_vs_sample_size_vs_tot_sig.svg" />
+</center></p>
+<p>As we can see, the area with the least significance corresponds to
+the white area in the original image. This confirms that we designed the
+colormap&nbsp;correctly.</p>
+<p>But this is not the end of it: until now, we have averaged over thousands of
+possible campaigns. What should we expect from a single campaign? Basically&nbsp;this:</p>
+<p><center>
+<img alt="Here should be a figure (try with another web browser).
+" src="/images/diff_vs_sample_size_vs_tot_expect.svg" />
+</center></p>
+<p>This image represents the amount of overlap between the A/B testing
+distribution and the one from the multi-armed bandit strategy. The overlap
+is nearly <span class="math">\(100\%\)</span> on all the plane. This means that we would need to perform
+a lot of campaigns to really see the difference (as we actually did earlier).
+And the difference per campaign should be&nbsp;negligible.</p>
+<p>From the multi-armed bandit perspective, this is very good news: even if it
+is not actually better at smaller sample rates, this should be hidden in random
+variations anyway. The difference should only be seen on the very long term.
+<em>In that sense</em>, the multi-armed bandit strategy does provide similar or higher
+click-through rates than A/B&nbsp;testing.</p>
+<p>Conversely, this means that the penalty induced by a too long testing stage
+does not penalize A/B testing that&nbsp;much</p>
+<h1>When should I use the multi-armed bandit&nbsp;method?</h1>
+<p>As we have seen, A/B testing and the multi-armed bandit strategy can both
+yield the same amount of clicks. Each of the methods have their&nbsp;advantages:</p>
+<ol>
+<li>A/B testing provides an unbiased estimation of the confidence in the
+    results, it is more efficient at finding the best variant (requires shorter
+    testing periods), it can be used in multivariate analysis, it can be used
+    to quantify precisely the differences between the&nbsp;variants.</li>
+<li>The multi-armed bandit strategy in the set-and-forget mode can is dead simple
+    to setup and yet often yields good click-through&nbsp;rates.</li>
+<li>The multi-armed bandit strategy in the two-staged mode yields nearly maximal
+    click-through rates on a wide range of sample sizes and it adapts very well
+    to poorly designed testing&nbsp;campaigns.</li>
+</ol>
+<p>They also have their&nbsp;drawbacks:</p>
+<ol>
+<li>A/B testing can only yield a maximal click-through rate on a limited range
+    of sample sizes. Determining this optimal range requires that we have an
+    idea of the original <span class="math">\(P(O|X)\)</span> value and that we have an idea of the
+    improvement we are likely to&nbsp;see.</li>
+<li>The set-and-forget strategy does not provide maximal click-through rates.
+    It does not provide any estimate of the confidence in its results. It skews
+    the data (introduce unexisting difference). It cannot be used in
+    multivariate&nbsp;analysis.</li>
+<li>The two-staged multi-armed bandit strategy does not provide any estimate of
+    the confidence. It skews the data. It requires a bigger sample size to
+    provide the same guarantees as the A/B testing method. It cannot be used in
+    multivariate&nbsp;analysis.</li>
+</ol>
+<p>To sum it&nbsp;up,</p>
+<ul>
+<li>if we have absolutely no idea of the difference in <span class="math">\(P(O|X)\)</span> we are&nbsp;expecting;</li>
+<li>if we also have no idea of the original <span class="math">\(P(O|A)\)</span>;</li>
+<li>if we don&#8217;t need to quantify the difference&nbsp;precisely;</li>
+<li>if we don&#8217;t need to quantify our confidence&nbsp;precisely;</li>
+<li>if we can afford to see a difference where there is none&nbsp;and</li>
+<li>if we can afford longer testing&nbsp;times</li>
+</ul>
+<p>then the multi-armed bandit method is worth&nbsp;considering.</p>
+<h1>Conclusion</h1>
+<p>For something that &#8220;is used far too often&#8221;, &#8220;for something that performs so 
+badly&#8221;, something that &#8220;is defective by design&#8221;, A/B testing does not seem so
+bad, quite the&nbsp;contrary.</p>
+<p>It is true that A/B testing provides guarantees that may not be needed in
+website optimization in general. In particular, we generally don&#8217;t need
+to guarantee through a test that the click-through rates we obtained are
+significantly different (well, if we are not doing multivariate analysis).
+This defeats the main point of using A/B testing as it was designed to answer
+that specific&nbsp;question.</p>
+<p>In our point of view, this is what the blogger tried to convey in his
+original&nbsp;post.</p>
+<p>However, this is not the only guarantee that A/B testing provides and it can
+perform just as well while requiring shorter testing periods. The mere
+availability of a suitable contingency test is also a big plus as it is the
+only way to really figure out whether our results mean something or if we need
+to gather more&nbsp;data.</p>
+<p>The answer is not all black or all white and this is something everyone should
+keep in mind, writers and reader&nbsp;alike.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>The basics of probabilities and mathematical notations</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">And yet it moves! </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/data-processing.html">Data processing</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/basics-notations.html" rel="bookmark"
+           title="Permalink to The basics of probabilities and mathematical notations">The basics of probabilities and mathematical&nbsp;notations</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2016-04-28T16:36:00+01:00">
+                Published: jeu. 28 avril 2016
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/gael.html">Gaël</a>
+        </address>
+<p>In <a href="/category/data-processing.html">Data processing</a>.</p>
+
+</footer><!-- /.post-info -->      <p>This post is the first technical post of the <a href="/toc-ab-testing-vs-multi-armed-bandit.html">series</a>.</p>
+<p><em>Website optimization
+is the concept of altering a website in order to favor a given behavior and
+maximize the <strong>reward</strong> we get out of the website
+(e.g. selling more stuff). This alteration could be a complete
+redesign or some refinements over an existing design (like changing the color 
+of a&nbsp;button).</em></p>
+<p><em>From the rigorist point of view, the only way to be absolutely sure that one
+variant actually performs better than the other (i.e. yields the maximal
+reward) is to serve the first variant until the death of the website,
+get back into time and serve only the second one. That seems ridiculous
+but this would be the only way to get an <strong>exact</strong>&nbsp;knowledge.</em></p>
+<p><em>Of course, in practice, time travel is not possible and it is not even needed:
+if we can afford to be wrong, sometimes, it is even possible to assess which
+variant is better with a very limited number of impressions (number of times
+the website is served). In that case, we can keep on using the best-performing
+variant only as long as we want. Such an assessment is performed through
+<strong>statistics</strong>.</em></p>
+<h1>Statistics: events, outcomes, population and sample&nbsp;size</h1>
+<p>People (among other things), tend to react in a predictable way <em>on average</em> 
+to a given &#8220;thing happening&#8221;:
+e.g. people often carry an umbrella on a rainy&nbsp;day.</p>
+<p>The &#8220;thing happening&#8221; is called an <strong>event</strong> and the &#8220;reaction&#8221;
+is called a result or an <strong>outcome</strong>.
+So, given a particular <em>event</em>, one can <em>measure</em> a particular result
+(or <em>outcome</em>):</p>
+<blockquote>
+<p>on the event <em>going out on a rainy day</em>,
+one can measure the outcome <em>number of persons carrying an
+umbrella</em>. </p>
+</blockquote>
+<p>Similarly, one could measure the same outcome on the different event
+<em>sunny day</em>.</p>
+<p>Each time the outcome is measured, whether or not that outcome is positive,
+is called a <strong>trial</strong> (or an <em>impression</em> in the web parlance as we said in the
+introduction). These trials are carried out in a subpart of the total
+<strong>population</strong> that we want to study (in the context of the web, the population
+would consist in all the users that will ever visit your website at any point in the
+future). This subpart is called a <strong>sample</strong> of the population and the number
+of element in this sample is called <strong>sample size</strong>.</p>
+<h1>Case study: optimizing the color of a&nbsp;button</h1>
+<p>Instead of the weather, the blogger decided to study the specific effect of the
+color (either orange, green or white) of a <em>Buy Now!</em> button on 
+its click-through rate (i.e. proportion of people clicking on the&nbsp;button).</p>
+<p>Each user accessing the website would therefore be subjected to one of three&nbsp;events:</p>
+<ul>
+<li>either getting the version of the website with the orange button (let&#8217;s call that
+  <em>event <span class="math">\(A\)</span></em>, or just <span class="math">\(A\)</span>);</li>
+<li>or getting that same website with a green button (<em>event <span class="math">\(B\)</span></em>);</li>
+<li>or getting the white button instead (<em>event <span class="math">\(C\)</span></em>).</li>
+</ul>
+<p>The outcome (called <span class="math">\(O\)</span>) we are interested in is the <em>number of
+clicks</em> on that&nbsp;button.</p>
+<p>But this raw number is not interesting by itself: we would like to unveil
+something deeper, a kind of hidden truth about people behavior in general.
+That&#8217;s why we have to resort to probabilities. So instead of analysing <span class="math">\(O\)</span>, the
+number of clicks on the <em>Buy Now!</em> button, we will study <span class="math">\(P(O)\)</span>, the
+probability that a user clicks on the button <strong>given</strong> that the user has
+been subjected to either <span class="math">\(A\)</span>, <span class="math">\(B\)</span> or <span class="math">\(C\)</span> (noted,  <span class="math">\(P(O|A)\)</span>, <span class="math">\(P(O|B)\)</span> and
+<span class="math">\(P(O|C)\)</span>,&nbsp;respectively).</p>
+<p>If we assume that these probabilities do not change with time (or they change
+uniformly), then only a limited number of impressions is needed to estimate
+these probabilities to determine which variant is better. This property is
+what allows us to perform a testing campaign first (in order to determine
+which variant is better) and then to exploit it in all the ulterior visits
+by only serving the <em>optimized</em>, best-performing,&nbsp;variant.</p>
+<h1>Summary</h1>
+<p>To sum up, we defined the following&nbsp;probabilities:</p>
+<ul>
+<li><span class="math">\(P(A)\)</span>: the probability that a user gets the website version with the
+  <em>orange</em>&nbsp;button;</li>
+<li><span class="math">\(P(B)\)</span>: the probability of getting the <em>green</em>&nbsp;button;</li>
+<li><span class="math">\(P(C)\)</span>: the probability of getting the <em>white</em>&nbsp;button;</li>
+<li><span class="math">\(P(O)\)</span>: the probability of <strong>any</strong> user clicking on the button (total
+  click-through&nbsp;rate);</li>
+<li><span class="math">\(P(O|A)\)</span>: the probability that a user clicks on the button <strong>given</strong> that
+  that button is <em>orange</em>;</li>
+<li><span class="math">\(P(O|B)\)</span>: the probability of clicking on the button <strong>given</strong> it is <em>green</em>;</li>
+<li><span class="math">\(P(O|C)\)</span>: the probability of clicking on the button <strong>given</strong> it is <em>white</em>.</li>
+</ul>
+<p>These are only notations: a way to express something. 
+But these notations will be very useful to express ourselves very precisely and
+concisely throughout the&nbsp;series.</p>
+<p><em>We saw that the statistics allows us to make statements about different
+variants of a website with only a limited number of impressions. 
+However, there are multiple different ways to gather and analyse the
+data in a testing campaign: the purpose of this blog series is two compare
+two of such methods, 
+<a href="/presentation-ab-testing-and-multi-armed-bandit.html">A/B testing and the multi-armed bandit
+strategy</a>.</em></p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

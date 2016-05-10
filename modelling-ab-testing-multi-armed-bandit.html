@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Modelling the two methods</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">And yet it moves! </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/data-processing.html">Data processing</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/modelling-ab-testing-multi-armed-bandit.html" rel="bookmark"
+           title="Permalink to Modelling the two methods">Modelling the two&nbsp;methods</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2016-04-29T10:24:00+01:00">
+                Published: ven. 29 avril 2016
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/gael.html">Gaël</a>
+        </address>
+<p>In <a href="/category/data-processing.html">Data processing</a>.</p>
+
+</footer><!-- /.post-info -->      <p>This post is the third technical post of the <a href="/toc-ab-testing-vs-multi-armed-bandit.html">series</a>.</p>
+<p><em>Now that we have a better idea of what the <a href="/presentation-ab-testing-and-multi-armed-bandit.html">two methods are and how they
+differ</a>, we can model them in order
+to perform simulations and compare&nbsp;them.</em></p>
+<p><em>We are going to rely on a specific form of simulation called</em> 
+<a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte-Carlo</a>.
+<em>Roughly speaking, it consist in simulating the same random
+process a large number of times to estimate an expected result and its
+uncertainties.
+We know that this definition is a bit misleading and abscons but a more
+rigorous definition would be beyond the scope of this post. Yet we hope
+that the descriptions given in this post will be helpful to grasp what
+we need to&nbsp;do.</em></p>
+<h1>Why and what are we trying to model&nbsp;exactly?</h1>
+<p>Models are prediction-enablers. This is their only purpose, their only reason of
+being. They can be mathematically fancy or dead simple (getting light by
+clicking on a button is a very simple, yet useful, model that requires no&nbsp;maths!).</p>
+<p>Here, we are going to model the whole data-gathering process by exploring
+different possible paths. The idea is to model many data-gathering campaigns
+(end-to-end) in order to get some insights on the two&nbsp;methods.</p>
+<h1>Context</h1>
+<ol>
+<li>John, from the sales department has a bad feeling about the website,
+    <em>something</em> is wrong with it, incidentally the sales are not doing well&nbsp;lately.</li>
+<li>After a few hours of discussion, it was
+    determined that the orange color of the <em>Buy Now!</em> button might
+    be suboptimal as Katherine from marketing stressed: &#8220;orange is often
+    associated to warnings, while green has a better connotation in people&#8217;s&nbsp;mind&#8221;.</li>
+<li>Bob from the web design team suggested that a white button might be
+    seen as more neutral and would better fit the style of the page. But 
+    the idea was rejected to keep things simple.
+    So, for the purpose of this series, we are going to consider only two
+    button colors, orange and green, which corresponds to events <span class="math">\(A\)</span> and <span class="math">\(B\)</span>,&nbsp;respectively.</li>
+<li>Katherine suggests the multi-armed bandit method as she has read a blog
+    post about it and it seemed great. But John is not thrilled by the idea
+    and would rather stick to A/B&nbsp;testing.</li>
+<li>However, they both agreed that there is no need to use the actual sales
+    in the analysis: &#8220;the click-through rate should be good enough as an
+    indicator for sales&#8221;. So the actual outcome they want to measure is
+    the click-through rate (the probability that a given user clicks 
+    on the&nbsp;button).</li>
+</ol>
+<h1>Modelling the website&nbsp;behavior</h1>
+<p>While John and Katherine were still arguing, Karl, from the web development 
+team, implemented 
+a simple function in the web backend to determine which page is going to be
+served.
+To be more specific, it takes a dictionary whose keys corresponds
+to the event/site-variant (<span class="math">\(X\)</span>, with <span class="math">\(X\)</span> being either <span class="math">\(A\)</span> or <span class="math">\(B\)</span> in our
+example) that is going to be served to the&nbsp;visitor.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="n">P_X</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span> <span class="c1"># example of P(X) dictionnary</span>
+                           <span class="c1"># A: site variant with the orange button</span>
+                           <span class="c1"># B: site variant with the green button</span>
+<span class="k">def</span> <span class="nf">which_version_to_serve</span><span class="p">(</span><span class="n">event_names</span><span class="p">,</span> <span class="n">P_X_proba</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="c1"># Each event is represented by an event name (in an `event_name` list).</span>
+    <span class="c1"># The function returns the index of the version to serve.</span>
+    <span class="c1"># The corresponding named event is found by doing `event_name[index]`.</span>
+    <span class="k">if</span> <span class="n">P_X_proba</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="c1"># If `P_X_proba` is None, all the probabilities are equal (&#39;proper&#39; A/B testing).</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">event_names</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># If not, the actual `P_X_proba` is an ordered list containing the probability</span>
+        <span class="c1"># of sending the corresponding event from `event_name`.</span>
+        <span class="c1"># Weight determination and normalisation before randomly choosing from the index list</span>
+        <span class="c1"># according to the weights:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">P_X_proba</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="n">weights</span> <span class="o">/=</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">P_X_proba</span><span class="p">))),</span> <span class="n">p</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>                              <span class="c1"># B: site variant with the green button</span>
+</pre></div>
+
+
+<p>This is only one of the many possible ways to translate raw probabilities like
+<span class="math">\(P(A)\)</span> or <span class="math">\(P(B)\)</span> into actual discreet values to serve to the visitor
+The idea is that at any given
+instant, the actual value <span class="math">\(\tilde{P}(X) \approx P(X)\)</span> (reaching the
+equality for an infinite sample size).
+We did not use a deterministic function to avoid some form of bias in the
+simulations. Yet another way of implementing this could be by repeatedly
+looping through <span class="math">\(A\)</span>, <span class="math">\(B\)</span> and <span class="math">\(C\)</span>.</p>
+<h1>Modelling the user&nbsp;behavior</h1>
+<p>The user behavior is obviously unknown. This is the <em>hidden truth</em> John
+and Katherine are trying to unveil! As far as <strong>we</strong> are concerned, this is
+<em>not</em> our problem: we want to assess the pros
+and the cons of the two click-rate-improving methods, not to know whether
+a green button would raise our sales (and we cannot model it: these are
+experimental&nbsp;data).</p>
+<p>In the same way as Karl translated raw probabilities to discreet,
+non-deterministic, values, the user reaction can be modelled this&nbsp;way:</p>
+<div class="highlight"><pre><span></span><span class="n">P_O_X</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="mf">10.</span><span class="o">/</span><span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="mf">2.</span><span class="o">/</span><span class="mi">100</span><span class="p">}</span> <span class="c1"># Example of P(O|X) to be tested.</span>
+                                    <span class="c1"># Given A, 10 users out of 100</span>
+                                    <span class="c1"># would click on the button.</span>
+<span class="k">def</span> <span class="nf">has_clicked</span><span class="p">(</span><span class="n">event_list</span><span class="p">,</span> <span class="n">P_O_X_proba</span><span class="p">):</span>
+    <span class="c1"># `event_list` is an ordered list containing each event proper name (like &quot;A&quot; or &quot;B&quot;)</span>
+    <span class="c1"># `P_O_X_proba` is an ordered list containing the corresponding &#39;hidden&#39; click-through rates</span>
+    <span class="n">click_proba_per_user</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">event_list</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">proba</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">P_O_X_proba</span><span class="p">):</span>
+        <span class="n">click_proba_per_user</span><span class="p">[</span><span class="n">event_list</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">proba</span>
+    <span class="c1"># If rand() &lt; P(O|X), the user &quot;has clicked&quot; that time.</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">event_list</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">click_proba_per_user</span>
+</pre></div>
+
+
+<p>So now, each time a user visits the website modified by Karl, we have a
+function to tell, for each of them, whether they clicked or not according
+to the <em>hidden truth</em> that we set at the start. Again, this implementation
+is non-deterministic: if we use it twice on the same <code>event_list</code>, the
+exact outcome will most certainly be different, yet the click-through rates
+calculated from each of these outcomes should be very similar and obviously
+nearly match the ones specified in <code>P_O_X</code> (equality is guaranteed to be
+reached for two infinite <code>event_list</code>s).</p>
+<h1>Modelling an A/B testing&nbsp;campaign</h1>
+<p>An A/B testing campaign is divided into two stages: data gathering and
+data&nbsp;analysis. </p>
+<h2>Data&nbsp;gathering</h2>
+<p>As we <a href="/presentation-ab-testing-and-multi-armed-bandit.html">previously stated</a>, <span class="math">\(P(A)\)</span> must
+be equal to <span class="math">\(P(B)\)</span> to reach optimality. In other words, Karl
+should set <code>P_X = {"A": 0.5, "B": 0.5}</code> and the resulting event list can be
+directly inputed in our <code>has_clicked</code> function:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">AB_data_gathering</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">P_O_X</span><span class="p">,</span> <span class="n">P_X</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="c1"># `sample_size` is the number of trials/people visiting the site during the test.</span>
+    <span class="c1"># `P_O_X` is a dict: {event X -&gt; P(O|X)}</span>
+    <span class="c1"># `P_X` is optional and can be None (equal proba, proper AB test) or a dict: {event X -&gt; P(X)}</span>
+    <span class="n">event_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">P_O_X</span><span class="p">]</span>
+    <span class="n">P_O_X_proba</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">P_O_X</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">event_names</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">P_X_proba</span> <span class="o">=</span> <span class="bp">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">P_X</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">P_X</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">event_names</span><span class="p">]</span>
+    <span class="n">trials</span> <span class="o">=</span> <span class="n">which_version_to_serve</span><span class="p">(</span><span class="n">event_names</span><span class="p">,</span> <span class="n">P_X_proba</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+    <span class="n">clicks</span> <span class="o">=</span> <span class="n">has_clicked</span><span class="p">(</span><span class="n">trials</span><span class="p">,</span> <span class="n">P_O_X_proba</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clicks</span><span class="p">,</span> <span class="n">trials</span><span class="p">,</span> <span class="n">event_names</span>
+</pre></div>
+
+
+<p>Because it is composed of non-deterministic functions, this function is
+also non-deterministic (each time it is run with the same input, the exact
+output is&nbsp;different). </p>
+<p>If that is a problem for you, just consider it that
+way: if you perform two data-gathering campaigns with the same number of people
+(and hopefully the same <em>hidden truth</em>) would you expect the fifth person in
+the second campaign to click <em>because</em> the fifth person in the first campaign
+did so? Obviously not. But you would expect, if you count the number of clicks
+per site variation, to roughly get the same probability overall. This is
+<em>exactly</em> what this function&nbsp;does.</p>
+<h2>Data&nbsp;analysis</h2>
+<p>The data analysis stage in A/B testing is actually a statistical test to
+actually answer the question that the A/B method was designed to&nbsp;answer:</p>
+<blockquote>
+<p>Are <span class="math">\(P(O|A)\)</span> and <span class="math">\(P(O|B)\)</span> significantly&nbsp;different?</p>
+</blockquote>
+<p>Choosing the correct test is beyond the scope of this article. Suffice to
+say that we are going to use 
+<a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test">Fisher&#8217;s exact test</a>
+which requires what is called a 
+<a href="https://en.wikipedia.org/wiki/Contingency_table">contingency table</a> as shown&nbsp;bellow:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="center">number of times a user has clicked</th>
+<th align="center">number of time a user has <span class="caps">NOT</span> clicked</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>event A (orange button)</td>
+<td align="center">15</td>
+<td align="center">26</td>
+</tr>
+<tr>
+<td>event B (green button)</td>
+<td align="center">541</td>
+<td align="center">432</td>
+</tr>
+</tbody>
+</table>
+<p>In addition to that table, Fisher&#8217;s exact test also requires a significance
+level to be set. We will discuss that concept in depth later. For the time
+being, that significance level will be set to <span class="math">\(99\%\)</span>.</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">fisher_exact</span>
+<span class="n">contingency_table</span> <span class="o">=</span> <span class="p">[[</span>  <span class="mi">15</span><span class="p">,</span>  <span class="mi">26</span><span class="p">],</span> <span class="c1"># Example of a contingency table</span>
+                     <span class="p">[</span> <span class="mi">541</span><span class="p">,</span> <span class="mi">432</span><span class="p">]]</span>
+<span class="k">def</span> <span class="nf">is_significant</span><span class="p">(</span><span class="n">contingency_table</span><span class="p">,</span> <span class="n">significance</span><span class="o">=</span><span class="mf">0.99</span><span class="p">):</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">significance</span>
+    <span class="c1"># if True, the difference is significant</span>
+    <span class="n">oddsratio</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">fisher_exact</span><span class="p">(</span><span class="n">contingency_table</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="n">alpha</span>
+</pre></div>
+
+
+<p>We can build this contingency table from the results of our data-gathering&nbsp;function:</p>
+<div class="highlight"><pre><span></span><span class="n">sample_size</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">clicks</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">event_names</span> <span class="o">=</span> <span class="n">AB_data_gathering</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">P_O_X</span><span class="p">)</span>
+<span class="c1"># Note that because `events` actually contains the indices of the event names,</span>
+<span class="c1"># `A` and `B` should be either these indices or `events` has to be altered</span>
+<span class="c1"># to contain the &quot;real&quot; event names.</span>
+<span class="k">def</span> <span class="nf">calculate_contingency_table</span><span class="p">(</span><span class="n">clicks</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">]):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">events</span> <span class="o">==</span> <span class="n">event</span><span class="p">)</span>
+        <span class="n">number_of_trials</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">number_clicked</span> <span class="o">=</span> <span class="n">clicks</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">number_non_clicked</span> <span class="o">=</span> <span class="n">number_of_trials</span> <span class="o">-</span> <span class="n">number_clicked</span>
+        <span class="n">table</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">number_clicked</span>
+        <span class="n">table</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">number_non_clicked</span>
+    <span class="k">return</span> <span class="n">table</span>
+</pre></div>
+
+
+<p>Lastly, we want to calculate <span class="math">\(\tilde{P}(O|A)\)</span> and <span class="math">\(\tilde{P}(O|B)\)</span> 
+(the click-through rates obtained with the site variant containing the orange
+or green button).
+This can be done using the following&nbsp;function:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_P_O_X_per_event</span><span class="p">(</span><span class="n">clicks</span><span class="p">,</span> <span class="n">trials</span><span class="p">,</span> <span class="n">event_names</span><span class="p">):</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">event_names</span><span class="p">):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">trials</span> <span class="o">==</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">ntrials</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">nclicks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">clicks</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">ntrials</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">nclicks</span><span class="o">/</span><span class="n">ntrials</span>
+    <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+
+
+<p>In the same way, we can retrieve <span class="math">\(\tilde{P}(X)\)</span> from the data (for testing&nbsp;purpose):</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_P_X_per_event</span><span class="p">(</span><span class="n">clicks</span><span class="p">,</span> <span class="n">trials</span><span class="p">,</span> <span class="n">event_names</span><span class="p">):</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">tot</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trials</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tot</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No trial to analyse.&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">event_names</span><span class="p">):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">trials</span> <span class="o">==</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">ntrials</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">ntrials</span><span class="o">/</span><span class="n">tot</span>
+    <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+
+
+<p>And we are done with A/B&nbsp;testing.</p>
+<h1>Modelling a multi-armed bandit&nbsp;campaign</h1>
+<p>As we <a href="/presentation-ab-testing-and-multi-armed-bandit.html">previously stated</a>, there is
+no statistical test in the multi-armed bandit strategy, <span class="math">\(P(O|X)\)</span> is simply
+estimated. In that strategy, <span class="math">\(P(A) \neq P(B)\)</span> as one is favored by a factor
+<span class="math">\(\varepsilon\)</span> equal to <span class="math">\(0.9\)</span> in the 
+<a href="http://stevehanov.ca/blog/index.php?id=132">blog post</a>.
+The particular implementation in the blog post in not really efficient:
+the two states of the algorithm (<em>exploration</em> and <em>exploitation</em>) can
+be easily expressed as 
+<a href="/presentation-ab-testing-and-multi-armed-bandit.html">raw probabilities</a>:
+</p>
+<div class="math">$$P(\text{disfavored}) = \frac{1-\varepsilon}{\text{number of events}}$$</div>
+<p>
+<center>and</center>
+</p>
+<div class="math">$$P(\text{favored}) = \varepsilon + P(\text{disfavored}).$$</div>
+<h2>Data&nbsp;gathering</h2>
+<p>As the trials are not independent this time, we cannot as efficiently vectorize
+things in Python. Yet, speed is important: a not so naive version
+of the algorithm was 150 times slower than the one presented here for A/B
+testing. This was too slow to keep the execution time under and hour on a
+laptop (for the most complex simulations).
+This is why we relied on <code>cython</code>.</p>
+<div class="highlight"><pre><span></span><span class="o">%%</span><span class="n">cython</span>
+<span class="k">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="k">cimport</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="k">import</span> <span class="nn">cython</span>
+<span class="k">cimport</span> <span class="nn">cython</span>
+<span class="k">ctypedef</span> <span class="nb">unsigned</span> <span class="nb">long</span> <span class="n">uint_t</span>
+
+<span class="nd">@cython</span><span class="o">.</span><span class="n">boundscheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="nd">@cython</span><span class="o">.</span><span class="n">cdivision</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<span class="c"># Similar to `np.argmax`, but without a reliance on `numpy`:</span>
+<span class="k">cdef</span> <span class="kt">uint_t</span> <span class="nf">get_best_event</span><span class="p">(</span><span class="n">uint_t</span><span class="p">[::</span><span class="mf">1</span><span class="p">]</span> <span class="n">clicks</span><span class="p">,</span> <span class="n">uint_t</span><span class="p">[::</span><span class="mf">1</span><span class="p">]</span> <span class="n">trials</span><span class="p">):</span>
+    <span class="k">cdef</span><span class="p">:</span>
+        <span class="n">double</span> <span class="n">curr_val</span><span class="p">,</span> <span class="n">ref_val</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="n">uint_t</span> <span class="n">curr</span><span class="p">,</span> <span class="n">ref</span> <span class="o">=</span> <span class="mf">0</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">clicks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mf">0</span><span class="p">],</span> <span class="n">trials</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mf">1</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">curr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">trials</span><span class="p">[</span><span class="n">curr</span><span class="p">]</span> <span class="o">!=</span> <span class="mf">0</span><span class="p">:</span>
+            <span class="n">curr_val</span> <span class="o">=</span> <span class="p">&lt;</span><span class="kt">double</span><span class="p">&gt;(</span><span class="n">clicks</span><span class="p">[</span><span class="n">curr</span><span class="p">])</span><span class="o">/</span><span class="p">&lt;</span><span class="kt">double</span><span class="p">&gt;(</span><span class="n">trials</span><span class="p">[</span><span class="n">curr</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">curr_val</span> <span class="o">&gt;</span> <span class="n">ref_val</span><span class="p">:</span>
+                <span class="n">ref_val</span> <span class="o">=</span> <span class="n">curr_val</span>
+                <span class="n">ref</span> <span class="o">=</span> <span class="n">curr</span>
+    <span class="k">return</span> <span class="n">ref</span>
+
+<span class="nd">@cython</span><span class="o">.</span><span class="n">boundscheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="nd">@cython</span><span class="o">.</span><span class="n">cdivision</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">MAB_data_gathering</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">P_O_X</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.9</span><span class="p">):</span>
+    <span class="c"># Init variables</span>
+    <span class="n">event_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">P_O_X</span><span class="p">]</span>
+    <span class="n">probas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">P_O_X</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">P_O_X</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">clicks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+    <span class="n">trials</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+    <span class="c"># Type declaration and massive use of memoryviews (instead of np.array)</span>
+    <span class="k">cdef</span><span class="p">:</span>
+        <span class="n">uint_t</span> <span class="n">number_of_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">event_names</span><span class="p">)</span>
+        <span class="n">size_t</span> <span class="n">i</span>
+        <span class="n">double</span><span class="p">[::</span><span class="mf">1</span><span class="p">]</span> <span class="n">event_proba</span> <span class="o">=</span> <span class="n">probas</span>
+        <span class="n">uint_t</span><span class="p">[::</span><span class="mf">1</span><span class="p">]</span> <span class="n">clicks_per_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">number_of_events</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+        <span class="n">uint_t</span><span class="p">[::</span><span class="mf">1</span><span class="p">]</span> <span class="n">trials_per_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">number_of_events</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+        <span class="n">uint_t</span><span class="p">[::</span><span class="mf">1</span><span class="p">]</span> <span class="n">trial_per_trial</span> <span class="o">=</span> <span class="n">trials</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">uint8_t</span><span class="p">[::</span><span class="mf">1</span><span class="p">]</span> <span class="n">click_per_trial</span> <span class="o">=</span> <span class="n">clicks</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="n">uint_t</span> <span class="n">best_event</span> <span class="o">=</span> <span class="mf">0</span><span class="p">,</span> <span class="n">curr_event</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">uint8_t</span><span class="p">[::</span><span class="mf">1</span><span class="p">]</span> <span class="n">is_exploitation</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">epsilon</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="n">uint_t</span><span class="p">[::</span><span class="mf">1</span><span class="p">]</span> <span class="n">rand_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span> <span class="n">number_of_events</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+        <span class="n">double</span><span class="p">[::</span><span class="mf">1</span><span class="p">]</span> <span class="n">rand_numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+    <span class="c"># The real algo starts here:</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sample_size</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_exploitation</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+            <span class="c"># We are at the exploitation stage: the best event always occurs</span>
+            <span class="n">trial_per_trial</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">best_event</span>
+            <span class="n">trials_per_event</span><span class="p">[</span><span class="n">best_event</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">1</span>
+            <span class="k">if</span> <span class="n">rand_numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">event_proba</span><span class="p">[</span><span class="n">best_event</span><span class="p">]:</span>
+                <span class="n">click_per_trial</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1</span>
+                <span class="n">clicks_per_event</span><span class="p">[</span><span class="n">best_event</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># We are at the exploration stage: each event can occur with the same proba.</span>
+            <span class="c"># The &#39;best_event&#39; must be estimated after each run.</span>
+            <span class="n">curr_event</span> <span class="o">=</span> <span class="n">rand_event</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">trial_per_trial</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">curr_event</span>
+            <span class="n">trials_per_event</span><span class="p">[</span><span class="n">curr_event</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">1</span>
+            <span class="k">if</span> <span class="n">rand_numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">event_proba</span><span class="p">[</span><span class="n">curr_event</span><span class="p">]:</span>
+                <span class="n">click_per_trial</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1</span>
+                <span class="n">clicks_per_event</span><span class="p">[</span><span class="n">curr_event</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">1</span>
+            <span class="k">if</span> <span class="n">curr_event</span> <span class="o">!=</span> <span class="n">best_event</span><span class="p">:</span>
+                <span class="n">best_event</span> <span class="o">=</span> <span class="n">get_best_event</span><span class="p">(</span><span class="n">clicks_per_event</span><span class="p">,</span> <span class="n">trials_per_event</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clicks</span><span class="p">,</span> <span class="n">trials</span><span class="p">,</span> <span class="n">event_names</span>
+</pre></div>
+
+
+<h1>Why using non-deterministic&nbsp;functions?</h1>
+<p>By doing these simulations end-to-end and drawing the data from the relevant
+random sources, we get rid of most correlation-based bias. Plus, this is
+much easier to setup and to adapt: these functions can be trivially changed
+to study the effect of a changing click-through rate through the
+day/week/month/year for instance. The analytical solutions to these problems
+can be a lot harder to express in a correct&nbsp;way.</p>
+<p><em>So we implemented the data-gathering and data-analysis parts of each of the
+methods. In the <a href="/pros-of-ab-testing.html">next post</a>, we are going to use
+these models to simulate complete testing&nbsp;campaigns.</em></p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
