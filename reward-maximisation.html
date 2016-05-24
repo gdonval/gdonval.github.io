@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <title>Reward maximisation</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <!--[if IE]>
+            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">And yet it moves! </a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/data-processing.html">Data processing</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/reward-maximisation.html" rel="bookmark"
+           title="Permalink to Reward maximisation">Reward&nbsp;maximisation</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2016-05-18T16:17:00+01:00">
+                Published: mer. 18 mai 2016
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/gael.html">Gaël</a>
+        </address>
+<p>In <a href="/category/data-processing.html">Data processing</a>.</p>
+
+</footer><!-- /.post-info -->      <p>I showed in the previous section that the A/B testing data-gathering method
+by itself has some advantages over the <span class="caps">MAB</span>&nbsp;strategy.</p>
+<p>But how does this translates to <em>what really matters</em>&trade;,&nbsp;clicks?</p>
+<p>In contrast with the previous section, we are not just interested in the
+<em>testing stage</em> anymore: we want to know which method would provide the highest
+click-through rate overall (so during testing and after, once the
+alleged best-performing variant is put in production). 
+I will first give an example in a specific setup
+and then explore the difference in behavior in a much broader scope to avoid
+making &ldquo;general&rdquo; conclusions out of a single specific&nbsp;example.</p>
+<h1 id="effect-of-the-sample-size">Effect of the sample&nbsp;size</h1>
+<p>So, I first simulated a large number of complete campaigns 
+(i.e. testing stage followed by an exploitation stage using the testing results).
+I assumed here that the population is composed of <span class="math">\(20000\)</span> visitors in total.
+In this particular example, I used the two-stepped variant of the <span class="caps">MAB</span> strategy
+provided that the set-and-forget mode is reached when the sample size is equal
+to the population size. I obtained the following&nbsp;figure:</p>
+<p><img alt="If you can't see the figure, please try another web browser which supports
+SVG images" src="/images/clicks_vs_sample_size.svg"/></p>
+<p>As we can see, there are different areas where each method shines but we are
+going to get back to that in detail a bit&nbsp;later. </p>
+<p>The asymptotic behavior of the two two-stepped methods are however&nbsp;similar:</p>
+<ul>
+<li>We can see that the total click-through rate rises quickly as smaller 
+    sample sizes (left of the figure), yet A/B testing systematically reaches 
+    higher click rates at smaller sample sizes than in the two-stepped <span class="caps">MAB</span>&nbsp;strategy.</li>
+<li>A maximum is then reached in both methods: that maximum is reached, again,
+    at smaller sample sizes in the A/B testing&nbsp;framework.</li>
+<li>Finally, the total click rate decreases linearly toward the final value in
+    each case (which corresponds to the set-and-forget scenario). These limit
+    values are known and could be calculated in each case: for A/B testing
+    this is generally the average of the individual click-through rates whereas
+    in the <span class="caps">MAB</span> strategy, this average is weighted so that higher values are&nbsp;obtained.</li>
+</ul>
+<p>This kind of curves seems to be generally misunderstood: as the <span class="caps">MAB</span> strategy
+provides higher values on the largest range, people tend to think that the <span class="caps">MAB</span>
+strategy is therefore generally better. <strong>This is incorrect</strong>.</p>
+<p>What this curve really means is that A/B testing does actually compete fairly
+well with the <span class="caps">MAB</span> strategy in terms of click-through rates. But let me explain
+using the following&nbsp;close-up:</p>
+<p><img alt="If you can't see the figure, please try another web browser which supports
+SVG images" src="/images/closer_clicks_vs_sample_size.svg"/></p>
+<p>Roughly the same total number of clicks can be obtained in A/B testing, 
+using smaller sample sizes (and therefore shorter testing periods).
+So there are conditions in which A/B testing performs as good as the <span class="caps">MAB</span> 
+strategy click-wise! All we have to do is to find these conditions. Easier
+said than done, but it should be possible using the same tools that allows us to
+determine the sample size until&nbsp;now.</p>
+<p>That said, the <span class="caps">MAB</span> strategy behaves better than A/B testing asymptotically:
+this is actually what this algorithm is good at and what it was designed for.
+That property could come in handy: it could be considered as a
+safety net in many situations and it makes the set-and-forget mode something
+that can be actually&nbsp;used.</p>
+<p>However, telling when to stop in the two-stepped case is even harder than with
+A/B testing (because we don&rsquo;t know how many trials the algorithm is going to
+spend for each variant, especially for smaller sample&nbsp;sizes).</p>
+<p>The alleged click-through rate superiority of the <span class="caps">MAB</span> strategy is not that
+clear anymore, in fact A/B testing seems to provide equivalent results at even
+smaller sample sizes. However, this does not mean that the <span class="caps">MAB</span> strategy
+performs badly click-wise. Moreover, these results were obtained in a single
+setup. It is now time to explore a bit&nbsp;more.</p>
+<h1 id="population-size">Population&nbsp;size</h1>
+<p>In the above example, the sample size was chosen equal to <span class="math">\(20000\)</span>. But what
+would happen to the total click-through rate if that population size was
+different? This is what I assessed in the following&nbsp;figure:</p>
+<p><img alt="If you can't see the figure, please try another web browser which supports
+SVG images" src="/images/diff_vs_sample_size_vs_tot.svg"/></p>
+<p>The blue patches represent conditions in which A/B testing provide
+significantly better click-through rate on average than the <span class="caps">MAB</span> strategy.
+The opposite situation is represented by the green patches. The white patches
+represent conditions in which both methods give roughly the same click-through&nbsp;rates.</p>
+<p>It appears clearly that A/B testing is systematically better at lower sample
+sizes. As the population increases, the range of sample sizes in which
+A/B testing performs better becomes wider. Though not represented on the
+figure, the difference in the maximum click-through rate between the methods
+is negligible. This means that A/B testing can systematically reach the same
+number of clicks as the <span class="caps">MAB</span> strategy.
+Again, the <span class="caps">MAB</span> strategy performs obviously as well at higher sample&nbsp;sizes.</p>
+<p>This can be explained by the asymptotic behaviour of the two methods as
+illustrated previously: as the population size increases, the worse-case
+scenario (i.e. the set-and-forget mode where all the time is spent in the
+testing stage) is reached further and further on the right
+resulting in a much gentler slope in both methods. However, as the slope in the
+A/B testing method was much steeper to begin with, the improvement is more
+spectacular there, resulting in a wider range of&nbsp;superiority.</p>
+<h1 id="mab-asymmetry"><span class="caps">MAB</span>&nbsp;asymmetry</h1>
+<p>As I have explained earlier, the core of the <span class="caps">MAB</span> strategy consists in favouring
+the best-performing variant. The strength of this favour is quantified by a
+variable called <span class="math">\(\varepsilon\)</span> (the Greek letter &ldquo;epsilon&rdquo;). 
+When <span class="math">\(\varepsilon = 0\%\)</span>, the
+<span class="caps">MAB</span> strategy favours the seemingly best-performing variant by <span class="math">\(0\%\)</span>: this is
+equivalent to proper A/B testing data-gathering (no variant is ever favored). 
+When <span class="math">\(\varepsilon = 100\%\)</span>, the algorithm is trapped: whichever variant was 
+found the best initially will be the only one&nbsp;served.</p>
+<p><img alt="If you can't see the figure, please try another web browser which supports
+SVG images" src="/images/epsilon_vs_sample_size_vs_tot.svg"/></p>
+<p>Again, A/B testing seems to perform better at lower sample sizes. Though not
+shown in the figure, the maximal value reached with each method for each
+<span class="math">\(\varepsilon\)</span> is again nearly equal (i.e. click-wise, the two methods perform 
+as well,&nbsp;again).</p>
+<p>It also appears clearly that, in this particular setup,
+the two methods are roughly equivalent below <span class="math">\(\varepsilon = 50\%\)</span>
+at smaller sample sizes. Yet the <span class="caps">MAB</span> strategy remains better at higher sample
+sizes. 
+This means that, click-wise, the <span class="caps">MAB</span> strategy in these setups is always as good
+or better than A/B testing on average. The price to pay is obviously that the
+<span class="caps">MAB</span> strategy gives worse and worse results at even higher sample sizes
+(especially you don&rsquo;t want a small <span class="math">\(\varepsilon\)</span> in the set-and-forget&nbsp;mode).</p>
+<p>This can be explained by considering yet again the first figure of this post:
+<span class="math">\(\varepsilon\)</span> basically determine the right-hand asymptotic value: 
+the higher <span class="math">\(\varepsilon\)</span>, the higher the value provided the population size is
+large enough. &ldquo;Large enough&rdquo; depends on <span class="math">\(\varepsilon\)</span> too: the higher
+<span class="math">\(\varepsilon\)</span>, the larger the population should be. This is a trade-off and an
+optimum <span class="math">\(\varepsilon\)</span> can be computed given the population size using&nbsp;simulations.</p>
+<h1 id="click-through-rate-reference-value">Click-through rate reference&nbsp;value</h1>
+<p>Until now, I have basically always set one click-through rate at <span class="math">\(10\%\)</span> 
+and the other at <span class="math">\(15\%\)</span> (corresponding to a difference of <span class="math">\(15 - 10 = 5\%\)</span>)
+and I want to see what would happen if I introduced an <strong>offset</strong> to shift these
+values upward. This is what I&nbsp;obtained:</p>
+<p><img alt="If you can't see the figure, please try another web browser which supports
+SVG images" src="/images/POXorig_vs_sample_size_vs_tot.svg"/></p>
+<p>It appears very clearly that the largest range of A/B testing superiority is
+obtained for an offset of <span class="math">\(\sim 35\%\)</span>: this corresponds to the actual
+click-through rates <span class="math">\(45\%\)</span> and <span class="math">\(60\%\)</span>, i.e. almost centered on <span class="math">\(50\%\)</span>.</p>
+<p>This result is actually cause by a change in the relative power of the two
+data-gathering strategies: when the click-through rates are around <span class="math">\(50\%\)</span>, the
+A/B testing method finds the correct variant even faster than in other cases
+while the <span class="caps">MAB</span> strategy is not really better because it keeps favouring one
+variant at the expense of the&nbsp;others.</p>
+<h1 id="difference-in-click-through-rates">Difference in click-through&nbsp;rates</h1>
+<p>The last parameter I wanted to study is the difference itself between the
+click-through rates. This is what I represented in the following figure
+(the <span class="math">\({\Delta}P(O|X)\)</span> notation represents this&nbsp;difference):</p>
+<p><img alt="If you can't see the figure, please try another web browser which supports
+SVG images" src="/images/POXdiff_vs_sample_size_vs_tot.svg"/></p>
+<p>It appears clearly that the <span class="caps">MAB</span> strategy provides a far broader range of
+superiority than A/B testing. Should we conclude that the <span class="caps">MAB</span> strategy is
+simply better for large differences? Not this time: there is always a range of
+values in which A/B testing provides better results but it is smaller: we would
+need a far finer grid to see it. For instance, a difference of <span class="math">\(50\%\)</span> can be
+correctly identified <span class="math">\(95\%\)</span> of the time with only a few dozens of trials while
+the minimum sample size represented here is actually <span class="math">\(100\)</span>.</p>
+<p>The wider range of click-wise superiority of the <span class="caps">MAB</span> strategy here can be
+explained again by the power of the strategies: higher differences are much
+easier to identify (it requires far fewer trials to do so). Therefore the <span class="caps">MAB</span>
+strategy gets correct for smaller sample sizes and gets the advantage. Yet,
+there is no inversion in the relative power of the methods: A/B testing remains
+better but the <span class="caps">MAB</span> strategy catches up&nbsp;faster.</p>
+<h1 id="summary-what-is-the-mab-strategy-good-at">Summary: what is the <span class="caps">MAB</span> strategy good&nbsp;at?</h1>
+<p>In practice, saying that this particular implementation of the multi-armed
+bandit strategy has been developed to maximise the number of clicks appears 
+misleading. This is <strong>not</strong> what it does.
+What it was actually designed for (and does very well) is keeping that total
+number of clicks very high for larger samples sizes. See the&nbsp;difference?</p>
+<p>It is even possible to use the <span class="caps">MAB</span> strategy in a set-and-forget mode and yet
+get acceptable results: no initial calculations, basically nothing to do,
+a real no-brainer. However, this comes at a price: that mode yields worse
+results than both two-stepped strategies. Again, this is a&nbsp;trade-off.</p>
+<p><em>Is that all? Then why would the original blogger present the <span class="caps">MAB</span> strategy as
+something that always beats A/B testing?</em> Simple: a fair amount of zealotry
+coupled with overconfidence and a shallow knowledge. <em>Really?!</em> Well, most
+likely yes, but that&rsquo;s not all: there is not just one single way to design an A/B&nbsp;campaign. </p>
+<p>Depending on the context, the optimal sample size calculated to be used in A/B
+testing can vary greatly and fall off pretty far away from the optimal settings
+from the maximum reward point of view. The reason is that gathering the maximal
+number of clicks on average (i.e. over multiple campaigns) is not the same as
+providing a correct answer with a particular &ldquo;level of&nbsp;confidence&rdquo;.</p>
+<p>Just one example: assume that you defined the sample size to that
+you have a <span class="math">\(95\%\)</span> chance to correctly identify a <span class="math">\(1\%\)</span> difference. As it
+turned out, there was actually a difference of <span class="math">\(5\%\)</span>. </p>
+<p>From the test
+perspective, this is good: you are even more confident that the variant you
+found os the best is indeed the best.
+Click-wise, this is another story: you spent more time testing at the expense
+of the total number of clicks. This is the huge drawback of A/B
+testing: it has not been designed to yield a high click-through rate in a wide
+range of sample sizes so even a few hundred extra trials can lead to a dramatic
+decrease of the total number of&nbsp;clicks.</p>
+<p>In that specific way, the <span class="caps">MAB</span> strategy do behave better in general provided
+that the population size is large enough. This is just a different&nbsp;trade-off.</p>
+<p><em>So, in practice, does that mean that using the <span class="caps">MAB</span> strategy is all right?</em>
+Most likely, yes. Though there are other drawbacks to consider: the next (and
+last post) of this series is dedicated to the description of a few of&nbsp;them.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

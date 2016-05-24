@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
         <meta charset="utf-8" />
-        <title>Is the multi-armed bandit method always better at maximizing the reward?</title>
+        <title>Is the multi-armed bandit method always better at maximizing the reward?</title>
         <link rel="stylesheet" href="/theme/css/main.css" />
 
         <!--[if IE]>
@@ -21,8 +21,8 @@
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="/pros-of-mab-strategy.html" rel="bookmark"
-           title="Permalink to Is the multi-armed bandit method always better at maximizing the reward?">Is the multi-armed bandit method always better at maximizing the reward?</a></h1>
+        <a href="/drafts/pros-of-mab-strategy.html" rel="bookmark"
+           title="Permalink to Is the multi-armed bandit method always better at maximizing the reward?">Is the multi-armed bandit method always better at maximizing the&nbsp;reward?</a></h1>
     </header>
 
     <div class="entry-content">
@@ -43,19 +43,18 @@ At this stage, let us not forget that the multi-armed bandit strategy was
 designed to maximize the reward and that it is claimed to behave well in
 a set-and-forget mode. Therefore that strategy could require larger sample
 sizes and yet provide higher click-through rates. This is what we are going
-to investigate.</em></p>
-<h1 id="the-multi-armed-bandit-strategy-tends-to-maximize-the-reward">The multi-armed bandit strategy tends to maximize the reward</h1>
+to&nbsp;investigate.</em></p>
+<h1 id="the-multi-armed-bandit-strategy-tends-to-maximize-the-reward">The multi-armed bandit strategy tends to maximize the&nbsp;reward</h1>
 <p>The multi-armed bandit strategy has been developed to maximize the reward.
 In our specific case of website optimization, this means that it should yield
-the highest number of clicks overall.</p>
-<p>In the A/B testing framework, a testing campaign is generally divided into two 
-stages:</p>
+the highest number of clicks&nbsp;overall.</p>
+<p>In the A/B testing framework, a testing campaign is generally divided into two&nbsp;stages:</p>
 <ul>
-<li>a <em>testing</em> stage where the data is gathered (and analysed);</li>
-<li>an <em>exploitation</em> stage where the best performing variant is always served.</li>
+<li>a <em>testing</em> stage where the data is gathered (and&nbsp;analysed);</li>
+<li>an <em>exploitation</em> stage where the best performing variant is always&nbsp;served.</li>
 </ul>
 <p>We can apply that complete process to the multi-armed bandit strategy to
-compare the methods in similar conditions:</p>
+compare the methods in similar&nbsp;conditions:</p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 There are two distributions of the total number of clicks
@@ -66,21 +65,21 @@ higher number of clicks.
 <p>The two distributions are Gaussian-shaped (therefore we can apply the normal
 approximation). The distribution arising from the A/B testing data-gathering
 method is mainly located below the distribution arising from the multi-armed
-bandit method.</p>
-<p>In that sense, the multi-armed bandit method does seem to maximize the reward.</p>
-<h1 id="but-is-the-comparison-fair">But is the comparison fair?</h1>
+bandit&nbsp;method.</p>
+<p>In that sense, the multi-armed bandit method does seem to maximize the&nbsp;reward.</p>
+<h1 id="but-is-the-comparison-fair">But is the comparison&nbsp;fair?</h1>
 <p>But as we have showed in the <a href="{filename}06-pros_of_AB.md">previous post</a>,
 that comparison is unfair because the A/B testing method provides much more
 confidence guarantees at that sample size than the multi-armed bandit method
-does. Comparing apples to apples would require either:</p>
+does. Comparing apples to apples would require&nbsp;either:</p>
 <ul>
 <li>that we choose a sample
   size around <em>5 times</em> smaller in the A/B testing framework to provide the same
-  power as in the multi-armed bandit framework;</li>
+  power as in the multi-armed bandit&nbsp;framework;</li>
 <li><em>or</em> that we use <span class="math">\(300\)</span> trials in the A/B testing framework instead of <span class="math">\(600\)</span>
-  if we want to provide the same probability of finding the best variant.</li>
+  if we want to provide the same probability of finding the best&nbsp;variant.</li>
 </ul>
-<p>This is what happens when the latter is done:</p>
+<p>This is what happens when the latter is&nbsp;done:</p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 There are two distributions of the total number of clicks
@@ -90,24 +89,24 @@ chosen to provide the same probability to be correct.
 </center></p>
 <p>We chose the sample size in the testing stage so that both methods have
 roughly the same probability to select the best-performing variant. As it 
-turned out, the two distributions are almost perfectly superimposed.</p>
-<p>Isn't that cheating? It like comparing insurances: you can
+turned out, the two distributions are almost perfectly&nbsp;superimposed.</p>
+<p>Isn&rsquo;t that cheating? It like comparing insurances: you can
 blindly go to the cheapest or you could go to the 
 cheapest providing equivalent guarantees. Is it fair to compare the price of
 an insurance which covers only the damage you have done to third-parties
-to one which covers your health and goods?</p>
+to one which covers your health and&nbsp;goods?</p>
 <p>That said, we cannot conclude that A/B testing can generally beat (or even match)
 the multi-armed bandit strategy from these data alone: the 
 <a href="{filename}08-bigger_picture.md">next post</a>
 will
 be dedicated to that. All we can say is that the claim that the multi-armed
 bandit strategy is always better than the A/B testing data-gathering method
-is not that strong anymore.</p>
-<h1 id="can-we-really-set-and-forget-the-multi-armed-bandit-strategy">Can we really set and forget the multi-armed bandit strategy?</h1>
+is not that strong&nbsp;anymore.</p>
+<h1 id="can-we-really-set-and-forget-the-multi-armed-bandit-strategy">Can we really set and forget the multi-armed bandit&nbsp;strategy?</h1>
 <p>Another way of solving that problem, as stated in the
 <a href="http://stevehanov.ca/blog/index.php?id=132">blog post</a>
-is to "set and forget" the multi-armed bandit algorithm. 
-And this turned out to be rather disappointing:</p>
+is to &ldquo;set and forget&rdquo; the multi-armed bandit algorithm. 
+And this turned out to be rather&nbsp;disappointing:</p>
 <p><center>
 <img alt='Here should be a figure (try with another web browser).
 There are two distributions of the total number of clicks
@@ -119,17 +118,17 @@ numbers of clicks.
 <p>This time, the A/B testing distribution of values is located at an higher point
 than the corresponding multi-armed bandit method in the set-and-forget mode.
 Yet, this comparison was reverted to equal sample sizes so the A/B testing
-method even provides higher guarantees at the same time!</p>
+method even provides higher guarantees at the same&nbsp;time!</p>
 <p><em>In this post, we showed that the multi-armed bandit strategy does not always
 provide a higher reward than the A/B testing data-gathering strategy does
 unlike what has been claimed in the original blog post. This could be
-considered as yet another proof that this kind of posts really lacks nuances.</em></p>
+considered as yet another proof that this kind of posts really lacks&nbsp;nuances.</em></p>
 <p><em>However we have really not proved anything here: we have merely showed some
 counter-examples. That is why the
 <a href="{filename}08-bigger_picture.md">next post</a>
 is dedicated to a more exhaustive study to assess when the A/B testing method
 is more efficient at gathering clicks than the multi-armed bandit method 
-(and vice-versa).</em></p>
+(and&nbsp;vice-versa).</em></p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
         indent = "0em",

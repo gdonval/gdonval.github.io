@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" width="22.206mm" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" height="4.5156mm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 78.683939 16.000001" version="1.1">
+<defs>
+<linearGradient id="a" y2="22.094" x1="61.25" gradientUnits="userSpaceOnUse" y1="34.148" gradientTransform="matrix(1.0005 0 0 .84872 -.027228 6.3286)" x2="61.25">
+<stop stop-color="#338000" offset="0"/>
+<stop stop-color="#4a0" offset="1"/>
+</linearGradient>
+</defs>
+<metadata>
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<dc:title/>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+<g transform="translate(-14.889 -25.955)">
+<rect width="78.223" x="15.119" stroke="#005800" y="26.185" stroke-width=".46075" height="15.539" fill="url(#a)" ry="2.6523"/>
+<text font-family="sans-serif" font-size="13.822px" x="20.069859" transform="scale(1.0857 .92103)" y="40.724293" style="word-spacing:0px;letter-spacing:0px" line-height="125%" fill="#cccccc" xml:space="preserve"><tspan font-family="Cantarell" font-size="13.822px" x="20.069859" fill="#cccccc" y="40.724293">Buy Now!</tspan></text>
+</g>
+</svg>

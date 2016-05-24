@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
         <meta charset="utf-8" />
-        <title>Modelling the two methods</title>
+        <title>Modelling the two methods</title>
         <link rel="stylesheet" href="/theme/css/main.css" />
 
         <!--[if IE]>
@@ -21,8 +21,8 @@
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="/modelling-ab-testing-multi-armed-bandit.html" rel="bookmark"
-           title="Permalink to Modelling the two methods">Modelling the two methods</a></h1>
+        <a href="/drafts/modelling-ab-testing-multi-armed-bandit.html" rel="bookmark"
+           title="Permalink to Modelling the two methods">Modelling the two&nbsp;methods</a></h1>
     </header>
 
     <div class="entry-content">
@@ -39,7 +39,7 @@
 </footer><!-- /.post-info -->      <p>This post is the third technical post of the <a href="{filename}01-index.md">series</a>.</p>
 <p><em>Now that we have a better idea of what the <a href="{filename}04-presentation_methods.md">two methods are and how they
 differ</a>, we can model them in order
-to perform simulations and compare them.</em></p>
+to perform simulations and compare&nbsp;them.</em></p>
 <p><em>We are going to rely on a specific form of simulation called</em>
 <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte-Carlo</a>.
 <em>Roughly speaking, it consist in simulating the same random
@@ -48,47 +48,44 @@ uncertainties.
 We know that this definition is a bit misleading and abscons but a more
 rigorous definition would be beyond the scope of this post. Yet we hope
 that the descriptions given in this post will be helpful to grasp what
-we need to do.</em></p>
-<h1 id="why-and-what-are-we-trying-to-model-exactly">Why and what are we trying to model exactly?</h1>
+we need to&nbsp;do.</em></p>
+<h1 id="why-and-what-are-we-trying-to-model-exactly">Why and what are we trying to model&nbsp;exactly?</h1>
 <p>Models are prediction-enablers. This is their only purpose, their only reason of
 being. They can be mathematically fancy or dead simple (getting light by
-clicking on a button is a very simple, yet useful, model that requires no maths!).</p>
+clicking on a button is a very simple, yet useful, model that requires no&nbsp;maths!).</p>
 <p>Here, we are going to model the whole data-gathering process by exploring
 different possible paths. The idea is to model many data-gathering campaigns
-(end-to-end) in order to get some insights on the two methods.</p>
+(end-to-end) in order to get some insights on the two&nbsp;methods.</p>
 <h1 id="context">Context</h1>
 <ol>
 <li>John, from the sales department has a bad feeling about the website,
-    <em>something</em> is wrong with it, incidentally the sales are not doing well
-    lately.</li>
+    <em>something</em> is wrong with it, incidentally the sales are not doing well&nbsp;lately.</li>
 <li>After a few hours of discussion, it was
     determined that the orange color of the <em>Buy Now!</em> button might
-    be suboptimal as Katherine from marketing stressed: "orange is often
-    associated to warnings, while green has a better connotation in people's
-    mind".</li>
+    be suboptimal as Katherine from marketing stressed: &ldquo;orange is often
+    associated to warnings, while green has a better connotation in people&rsquo;s&nbsp;mind&rdquo;.</li>
 <li>Bob from the web design team suggested that a white button might be
     seen as more neutral and would better fit the style of the page. But 
     the idea was rejected to keep things simple.
     So, for the purpose of this series, we are going to consider only two
-    button colors, orange and green, which corresponds to events <span class="math">\(A\)</span> and <span class="math">\(B\)</span>,
-    respectively.</li>
+    button colors, orange and green, which corresponds to events <span class="math">\(A\)</span> and <span class="math">\(B\)</span>,&nbsp;respectively.</li>
 <li>Katherine suggests the multi-armed bandit method as she has read a blog
     post about it and it seemed great. But John is not thrilled by the idea
-    and would rather stick to A/B testing.</li>
+    and would rather stick to A/B&nbsp;testing.</li>
 <li>However, they both agreed that there is no need to use the actual sales
-    in the analysis: "the click-through rate should be good enough as an
-    indicator for sales". So the actual outcome they want to measure is
+    in the analysis: &ldquo;the click-through rate should be good enough as an
+    indicator for sales&rdquo;. So the actual outcome they want to measure is
     the click-through rate (the probability that a given user clicks 
-    on the button).</li>
+    on the&nbsp;button).</li>
 </ol>
-<h1 id="modelling-the-website-behavior">Modelling the website behavior</h1>
+<h1 id="modelling-the-website-behavior">Modelling the website&nbsp;behavior</h1>
 <p>While John and Katherine were still arguing, Karl, from the web development 
 team, implemented 
 a simple function in the web backend to determine which page is going to be
 served.
 To be more specific, it takes a dictionary whose keys corresponds
 to the event/site-variant (<span class="math">\(X\)</span>, with <span class="math">\(X\)</span> being either <span class="math">\(A\)</span> or <span class="math">\(B\)</span> in our
-example) that is going to be served to the visitor.</p>
+example) that is going to be served to the&nbsp;visitor.</p>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="n">P_X</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"A"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span> <span class="c1"># example of P(X) dictionnary</span>
                            <span class="c1"># A: site variant with the orange button</span>
@@ -117,15 +114,15 @@ equality for an infinite sample size).
 We did not use a deterministic function to avoid some form of bias in the
 simulations. Yet another way of implementing this could be by repeatedly
 looping through <span class="math">\(A\)</span>, <span class="math">\(B\)</span> and <span class="math">\(C\)</span>.</p>
-<h1 id="modelling-the-user-behavior">Modelling the user behavior</h1>
+<h1 id="modelling-the-user-behavior">Modelling the user&nbsp;behavior</h1>
 <p>The user behavior is obviously unknown. This is the <em>hidden truth</em> John
 and Katherine are trying to unveil! As far as <strong>we</strong> are concerned, this is
 <em>not</em> our problem: we want to assess the pros
 and the cons of the two click-rate-improving methods, not to know whether
 a green button would raise our sales (and we cannot model it: these are
-experimental data).</p>
+experimental&nbsp;data).</p>
 <p>In the same way as Karl translated raw probabilities to discreet,
-non-deterministic, values, the user reaction can be modelled this way:</p>
+non-deterministic, values, the user reaction can be modelled this&nbsp;way:</p>
 <div class="highlight"><pre><span></span><span class="n">P_O_X</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"A"</span><span class="p">:</span> <span class="mf">10.</span><span class="o">/</span><span class="mi">100</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">:</span> <span class="mf">2.</span><span class="o">/</span><span class="mi">100</span><span class="p">}</span> <span class="c1"># Example of P(O|X) to be tested.</span>
                                     <span class="c1"># Given A, 10 users out of 100</span>
                                     <span class="c1"># would click on the button.</span>
@@ -146,10 +143,10 @@ exact outcome will most certainly be different, yet the click-through rates
 calculated from each of these outcomes should be very similar and obviously
 nearly match the ones specified in <code>P_O_X</code> (equality is guaranteed to be
 reached for two infinite <code>event_list</code>s).</p>
-<h1 id="modelling-an-ab-testing-campaign">Modelling an A/B testing campaign</h1>
+<h1 id="modelling-an-ab-testing-campaign">Modelling an A/B testing&nbsp;campaign</h1>
 <p>An A/B testing campaign is divided into two stages: data gathering and
-data analysis. </p>
-<h2 id="data-gathering">Data gathering</h2>
+data&nbsp;analysis. </p>
+<h2 id="data-gathering">Data&nbsp;gathering</h2>
 <p>As we <a href="{filename}04-presentation_methods.md">previously stated</a>, <span class="math">\(P(A)\)</span> must
 be equal to <span class="math">\(P(B)\)</span> to reach optimality. In other words, Karl
 should set <code>P_X = {"A": 0.5, "B": 0.5}</code> and the resulting event list can be
@@ -167,32 +164,31 @@ directly inputed in our <code>has_clicked</code> function:</p>
 </pre></div>
 <p>Because it is composed of non-deterministic functions, this function is
 also non-deterministic (each time it is run with the same input, the exact
-output is different). </p>
+output is&nbsp;different). </p>
 <p>If that is a problem for you, just consider it that
 way: if you perform two data-gathering campaigns with the same number of people
 (and hopefully the same <em>hidden truth</em>) would you expect the fifth person in
 the second campaign to click <em>because</em> the fifth person in the first campaign
 did so? Obviously not. But you would expect, if you count the number of clicks
 per site variation, to roughly get the same probability overall. This is
-<em>exactly</em> what this function does.</p>
-<h2 id="data-analysis">Data analysis</h2>
+<em>exactly</em> what this function&nbsp;does.</p>
+<h2 id="data-analysis">Data&nbsp;analysis</h2>
 <p>The data analysis stage in A/B testing is actually a statistical test to
-actually answer the question that the A/B method was designed to answer:</p>
+actually answer the question that the A/B method was designed to&nbsp;answer:</p>
 <blockquote>
-<p>Are <span class="math">\(P(O|A)\)</span> and <span class="math">\(P(O|B)\)</span> significantly different?</p>
+<p>Are <span class="math">\(P(O|A)\)</span> and <span class="math">\(P(O|B)\)</span> significantly&nbsp;different?</p>
 </blockquote>
 <p>Choosing the correct test is beyond the scope of this article. Suffice to
 say that we are going to use 
-<a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test">Fisher's exact test</a>
+<a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test">Fisher&rsquo;s exact test</a>
 which requires what is called a 
-<a href="https://en.wikipedia.org/wiki/Contingency_table">contingency table</a> as shown
-bellow:</p>
+<a href="https://en.wikipedia.org/wiki/Contingency_table">contingency table</a> as shown&nbsp;bellow:</p>
 <table>
 <thead>
 <tr>
 <th></th>
 <th align="center">number of times a user has clicked</th>
-<th align="center">number of time a user has NOT clicked</th>
+<th align="center">number of time a user has <span class="caps">NOT</span> clicked</th>
 </tr>
 </thead>
 <tbody>
@@ -208,7 +204,7 @@ bellow:</p>
 </tr>
 </tbody>
 </table>
-<p>In addition to that table, Fisher's exact test also requires a significance
+<p>In addition to that table, Fisher&rsquo;s exact test also requires a significance
 level to be set. We will discuss that concept in depth later. For the time
 being, that significance level will be set to <span class="math">\(99\%\)</span>.</p>
 <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">fisher_exact</span>
@@ -220,8 +216,7 @@ being, that significance level will be set to <span class="math">\(99\%\)</span>
     <span class="n">oddsratio</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">fisher_exact</span><span class="p">(</span><span class="n">contingency_table</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="n">alpha</span>
 </pre></div>
-<p>We can build this contingency table from the results of our data-gathering
-function:</p>
+<p>We can build this contingency table from the results of our data-gathering&nbsp;function:</p>
 <div class="highlight"><pre><span></span><span class="n">sample_size</span> <span class="o">=</span> <span class="mi">50</span>
 <span class="n">clicks</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">event_names</span> <span class="o">=</span> <span class="n">AB_data_gathering</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">P_O_X</span><span class="p">)</span>
 <span class="c1"># Note that because `events` actually contains the indices of the event names,</span>
@@ -241,7 +236,7 @@ function:</p>
 <p>Lastly, we want to calculate <span class="math">\(\tilde{P}(O|A)\)</span> and <span class="math">\(\tilde{P}(O|B)\)</span> 
 (the click-through rates obtained with the site variant containing the orange
 or green button).
-This can be done using the following function:</p>
+This can be done using the following&nbsp;function:</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_P_O_X_per_event</span><span class="p">(</span><span class="n">clicks</span><span class="p">,</span> <span class="n">trials</span><span class="p">,</span> <span class="n">event_names</span><span class="p">):</span>
     <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">event_names</span><span class="p">):</span>
@@ -252,7 +247,7 @@ This can be done using the following function:</p>
             <span class="n">out</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">nclicks</span><span class="o">/</span><span class="n">ntrials</span>
     <span class="k">return</span> <span class="n">out</span>
 </pre></div>
-<p>In the same way, we can retrieve <span class="math">\(\tilde{P}(X)\)</span> from the data (for testing purpose):</p>
+<p>In the same way, we can retrieve <span class="math">\(\tilde{P}(X)\)</span> from the data (for testing&nbsp;purpose):</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_P_X_per_event</span><span class="p">(</span><span class="n">clicks</span><span class="p">,</span> <span class="n">trials</span><span class="p">,</span> <span class="n">event_names</span><span class="p">):</span>
     <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">tot</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trials</span><span class="p">)</span>
@@ -264,8 +259,8 @@ This can be done using the following function:</p>
         <span class="n">out</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">ntrials</span><span class="o">/</span><span class="n">tot</span>
     <span class="k">return</span> <span class="n">out</span>
 </pre></div>
-<p>And we are done with A/B testing.</p>
-<h1 id="modelling-a-multi-armed-bandit-campaign_1">Modelling a multi-armed bandit campaign</h1>
+<p>And we are done with A/B&nbsp;testing.</p>
+<h1 id="modelling-a-multi-armed-bandit-campaign_1">Modelling a multi-armed bandit&nbsp;campaign</h1>
 <p>As we <a href="{filename}04-presentation_methods.md">previously stated</a>, there is
 no statistical test in the multi-armed bandit strategy, <span class="math">\(P(O|X)\)</span> is simply
 estimated. In that strategy, <span class="math">\(P(A) \neq P(B)\)</span> as one is favored by a factor
@@ -281,7 +276,7 @@ be easily expressed as
 <center>and</center>
 </p>
 <div class="math">$$P(\text{favored}) = \varepsilon + P(\text{disfavored}).$$</div>
-<h2 id="data-gathering_1">Data gathering</h2>
+<h2 id="data-gathering_1">Data&nbsp;gathering</h2>
 <p>As the trials are not independent this time, we cannot as efficiently vectorize
 things in Python. Yet, speed is important: a not so naive version
 of the algorithm was 150 times slower than the one presented here for A/B
@@ -353,16 +348,16 @@ This is why we relied on <code>cython</code>.</p>
                 <span class="n">best_event</span> <span class="o">=</span> <span class="n">get_best_event</span><span class="p">(</span><span class="n">clicks_per_event</span><span class="p">,</span> <span class="n">trials_per_event</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">clicks</span><span class="p">,</span> <span class="n">trials</span><span class="p">,</span> <span class="n">event_names</span>
 </pre></div>
-<h1 id="why-using-non-deterministic-functions_1">Why using non-deterministic functions?</h1>
+<h1 id="why-using-non-deterministic-functions_1">Why using non-deterministic&nbsp;functions?</h1>
 <p>By doing these simulations end-to-end and drawing the data from the relevant
 random sources, we get rid of most correlation-based bias. Plus, this is
 much easier to setup and to adapt: these functions can be trivially changed
 to study the effect of a changing click-through rate through the
 day/week/month/year for instance. The analytical solutions to these problems
-can be a lot harder to express in a correct way.</p>
+can be a lot harder to express in a correct&nbsp;way.</p>
 <p><em>So we implemented the data-gathering and data-analysis parts of each of the
 methods. In the <a href="{filename}06-pros_of_AB.md">next post</a>, we are going to use
-these models to simulate complete testing campaigns.</em></p>
+these models to simulate complete testing&nbsp;campaigns.</em></p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
         indent = "0em",

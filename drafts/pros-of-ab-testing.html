@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
         <meta charset="utf-8" />
-        <title>The pros of the A/B testing method</title>
+        <title>The pros of the A/B testing method</title>
         <link rel="stylesheet" href="/theme/css/main.css" />
 
         <!--[if IE]>
@@ -21,8 +21,8 @@
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="/pros-of-ab-testing.html" rel="bookmark"
-           title="Permalink to The pros of the A/B testing method">The pros of the A/B testing method</a></h1>
+        <a href="/drafts/pros-of-ab-testing.html" rel="bookmark"
+           title="Permalink to The pros of the A/B testing method">The pros of the A/B testing&nbsp;method</a></h1>
     </header>
 
     <div class="entry-content">
@@ -40,31 +40,30 @@
 <p><em>A/B testing was</em> designed <em>to tell whether or not an event has a significant
 effect on an outcome. The strength of that method comes from the contingency
 test that both help to determine what the sample size should be and what
-confidence we should have on the results.</em></p>
+confidence we should have on the&nbsp;results.</em></p>
 <p><em>It should not be surprising that the multi-armed bandit strategy is not as 
 good as A/B testing to actually answer this question. In particular, the
 multi-armed bandit strategy requires a bigger sample to provide the same
 guarantees as A/B testing in the same conditions and that strategy actually
-skews the results (as opposed to what was claimed in the original blog post).</em></p>
-<h1 id="ab-testing-is-more-efficient-at-telling-whether-there-is-a-difference">A/B testing is more efficient at telling whether there is a difference</h1>
+skews the results (as opposed to what was claimed in the original blog&nbsp;post).</em></p>
+<h1 id="ab-testing-is-more-efficient-at-telling-whether-there-is-a-difference">A/B testing is more efficient at telling whether there is a&nbsp;difference</h1>
 <p>We are going to temporarily blindly assume that we can apply a <em>contingency
-test</em> (here, <a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test">Fisher's exact test</a>)
-to the data gathered through the multi-armed bandit strategy.</p>
+test</em> (here, <a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test">Fisher&rsquo;s exact test</a>)
+to the data gathered through the multi-armed bandit&nbsp;strategy.</p>
 <p>Given a sample size and a click-through rate difference (<span class="math">\(|P(O|A)-P(O|B)|\)</span>),
-two "confidence-related" criteria can be associated to a test:</p>
+two &ldquo;confidence-related&rdquo; criteria can be associated to a&nbsp;test:</p>
 <ul>
 <li>Its <em>level of significance</em>: the probability of correctly concluding that 
-    there is no difference.</li>
-<li>Its <em>power</em>: the probability of correctly concluding that there is a
-    difference.</li>
+    there is no&nbsp;difference.</li>
+<li>Its <em>power</em>: the probability of correctly concluding that there is a&nbsp;difference.</li>
 </ul>
 <p>Increasing either the sample size or <span class="math">\(|P(O|A)-P(O|B)|\)</span> increases both the
 level of significance and the power. But increasing the power decreases the
-significance and vice-versa.</p>
+significance and&nbsp;vice-versa.</p>
 <p>As we just said, given a sample size and a difference, a higher significance
 should reduce the power of the method. What we want to assess here is the
 which method exhibits the highest power given a fixed significance. This is 
-what we did in the following picture.</p>
+what we did in the following&nbsp;picture.</p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 We should see that the A/B testing method provides a better power (i.e.
@@ -75,23 +74,23 @@ sample sizes (20 -&gt; 10000).
 <p>We observe that the power of the A/B testing method is always above the
 power provided by the multi-armed bandit strategy. This is actually caused by 
 the different sampling methods: it is usually more efficient to sample the 
-events equally than to favor one particular event.</p>
+events equally than to favor one particular&nbsp;event.</p>
 <p>In this case, we should gather around <strong>5 times as many</strong>
 trials in the multi-armed bandit strategy to get the same confidence about
 our results! Conversely, if we are happy
 with a lower confidence, we could reduce the sample
-size by as much by using A/B testing!</p>
-<h1 id="ab-testing-chooses-the-correct-variant-more-often">A/B testing chooses the correct variant more often</h1>
+size by as much by using A/B&nbsp;testing!</p>
+<h1 id="ab-testing-chooses-the-correct-variant-more-often">A/B testing chooses the correct variant more&nbsp;often</h1>
 <p>To be fair, it is important to understand that these significance/power 
 values only concern our <em>confidence</em> in the results that is assessed
 through the contingency test. In particular, these
 do <em>not</em> represent the number of times the best variation is chosen correctly
-by the algorithms.</p>
+by the&nbsp;algorithms.</p>
 <p>That said, such a number can be easily calculated. This time, we will not
 apply any statistical test. Instead, we are going to estimate the ratio of
 good guesses (i.e. choosing the event providing the highest click-through rate
 P(O|X)) obtained through the data-gathering stage in A/B testing
-and through the multi-armed bandit strategy.</p>
+and through the multi-armed bandit&nbsp;strategy.</p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 We should see that the A/B testing guesses are correct more often
@@ -109,28 +108,28 @@ around <span class="math">\(600\)</span> trials in the multi-armed bandit framew
 constant sample size as it has been done in the original blog post
 is clearly misleading: the sample size must be adjusted to get
 the same confidence guarantees in both methods otherwise we are comparing
-apples to oranges.</p>
-<h1 id="ab-testing-is-better-at-quantifying-the-difference-in-click-through-rates">A/B testing is better at quantifying the difference in click-through rates</h1>
+apples to&nbsp;oranges.</p>
+<h1 id="ab-testing-is-better-at-quantifying-the-difference-in-click-through-rates">A/B testing is better at quantifying the difference in click-through&nbsp;rates</h1>
 <p>Estimating the difference <span class="math">\(\tilde{P}(O|B) - \tilde{P}(O|A)\)</span>
 is important because this is what we ultimately use to determine which version
 performs the best. It is also a great way to prevent the introduction of
 a few biases (like some sorts of hidden coupling between <span class="math">\(\tilde{P}(O|A)\)</span> and
 <span class="math">\(\tilde{P}(O|B)\)</span>).</p>
-<p>Until now, we only simulated Bernoulli processes: we "repeated" the same
+<p>Until now, we only simulated Bernoulli processes: we &ldquo;repeated&rdquo; the same
 observation multiple times and got series of true/false values (be it to
 determine whether a user clicked on the button or whether a given method
 correctly identified the best variant).
 Each time, we estimated the uncertainties by resorting to the Beta
-distribution which we know is the result of such processes.</p>
+distribution which we know is the result of such&nbsp;processes.</p>
 <p>Here we are going a step further to actually estimate the distribution
 of the difference <span class="math">\(\tilde{P}(O|B) - \tilde{P}(O|A)\)</span>. To do that, we need to
 choose a sample size, calculate
-<span class="math">\(\tilde{P}(O|A)\)</span> and <span class="math">\(\tilde{P}(O|B)\)</span> and finally perform the subtraction.</p>
+<span class="math">\(\tilde{P}(O|A)\)</span> and <span class="math">\(\tilde{P}(O|B)\)</span> and finally perform the&nbsp;subtraction.</p>
 <p>This whole process is repeated <span class="math">\(M\)</span> times and the actual
 distribution can be estimated either by calculating an histogram of the values
 or by using more advanced method. We actually chose the 
 <a href="https://en.wikipedia.org/wiki/Kernel_density_estimation">kernel density estimation</a>
-with a Gaussian kernel which behaves better than histograms.</p>
+with a Gaussian kernel which behaves better than&nbsp;histograms.</p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 We can see the average of the difference between the click-through rates
@@ -141,16 +140,16 @@ the fastest to converge to the expected value (\(5\%\)).
 <p>We can see that the distributions of values are nearly Gaussian-shaped
 (i.e. normally distributed).
 The A/B testing data-gathering process does provide a narrower distribution
-than the multi-armed bandit method.</p>
+than the multi-armed bandit&nbsp;method.</p>
 <p>This is in total accordance with the
 claim that it is more efficient to sample each event equally rather than
 favoring one. This is also why the power of the contingency test applied to
 the multi-armed bandit method is so much worse: more spread means that the
-differences need to be bigger for the test to succeed.</p>
+differences need to be bigger for the test to&nbsp;succeed.</p>
 <p>Because the data are normally distributed, we can reduce these distributions
 to an expected value (the arithmetic mean) and a spread indicator (derived from
 the standard deviation). This is particularly useful to represent the expected
-difference depending on the sample size:</p>
+difference depending on the sample&nbsp;size:</p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 We can see the average of the difference between the click-through rates
@@ -166,30 +165,27 @@ a precision of <span class="math">\(20\%\)</span>.</p>
 <p>This tends to prove that the A/B testing data-gathering process is more
 efficient to determine the actual difference. This result is in complete
 accordance with the fact that A/B testing also seems more efficient at
-determining which variant is better: if </p>
+determining which variant is better:&nbsp;if </p>
 <div class="math">$$P(O|B) - P(O|A)$$</div>
-<p> is more accurate,
-then  </p>
+<p> is more accurate,&nbsp;then  </p>
 <div class="math">$$P(O|B) &gt; P(O|A) \equiv P(O|B) - P(O|A) &gt; 0$$</div>
 <p> 
-should also be.</p>
+should also&nbsp;be.</p>
 <p>It is not clear whether the remaining difference at higher sample sizes
 would totally disappear:
 we did the same calculation for larger values and that difference seems to
 remain fairly constant (if that is really the case, we can say that the 
-underlying distribution is skewed).</p>
-<h1 id="ab-testing-provides-non-skewed-results">A/B testing provides non-skewed results</h1>
+underlying distribution is&nbsp;skewed).</p>
+<h1 id="ab-testing-provides-non-skewed-results">A/B testing provides non-skewed&nbsp;results</h1>
 <p>At this point, it is not clear whether of not the multi-armed bandit strategy
 skews the results. Proving that is does so or not would not be easy
 without resorting to algebra. At the same time, the difference that 
-we observe is small, too small to matter in most cases.</p>
+we observe is small, too small to matter in most&nbsp;cases.</p>
 <p>As we want to see the effect of the strategy itself on the distribution of
 differences, we should simulate the case where the algorithm is supposed to
-make decisions the most often: when the two click-through rates are actually
-identical.</p>
+make decisions the most often: when the two click-through rates are actually&nbsp;identical.</p>
 <p>We performed the same difference calculation as above but this
-time with <span class="math">\(P(O|B) = P(O|A) = 10\%\)</span> and we obtained the following 
-distributions:</p>
+time with <span class="math">\(P(O|B) = P(O|A) = 10\%\)</span> and we obtained the following&nbsp;distributions:</p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 It shows two probability distribution functions. The one associated to 
@@ -200,15 +196,15 @@ Gaussian. Some non-zero difference is clearly favored.
 </center></p>
 <p>We see that the distribution arising from A/B testing data-gathering method
 is (roughly) Gaussian-shaped and centered on <span class="math">\(0\%\)</span>. This is what is expected
-and the same from above. </p>
+and the same from&nbsp;above. </p>
 <p>The distribution arising from the multi-armed bandit
-strategy however is clearly skewed: the expected value, <span class="math">\(0\)</span> ("zero") is not
-at the highest point. </p>
+strategy however is clearly skewed: the expected value, <span class="math">\(0\)</span> (&ldquo;zero&rdquo;) is not
+at the highest&nbsp;point. </p>
 <p>The reason why the distribution is that peculiar is
-that we are not looking at the "correct" distance: we are looking
+that we are not looking at the &ldquo;correct&rdquo; distance: we are looking
 at <span class="math">\(P(O|B) - P(O|A)\)</span> while we should really be looking at
 <span class="math">\(P(O|\text{favored}) - P(O|\text{disfavored})\)</span>, the distance between the favored
-and disfavored event in each trial:</p>
+and disfavored event in each&nbsp;trial:</p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 It represents the distribution of the absolute values of the distances
@@ -219,24 +215,24 @@ bandit method (0.4%).
 <p>We can observe that there is no skew in A/B testing: the maximal value in
 indeed reached at <span class="math">\(0\%\)</span>. The multi-armed bandit strategy tends to <strong>introduce</strong>
 a non-existing difference of <span class="math">\(0.4\%\)</span> in this particular case. This is a clear
-proof that the data are skewed by the method.</p>
+proof that the data are skewed by the&nbsp;method.</p>
 <p>Where does it come from? Think of it this way: the problem is that <strong>we</strong> 
-choose <strong>when</strong> to change <span class="math">\(P(X)\)</span> <strong>using</strong> the results themselves!</p>
+choose <strong>when</strong> to change <span class="math">\(P(X)\)</span> <strong>using</strong> the results&nbsp;themselves!</p>
 <p>Likewise, we could toss a coin and decide to toss the coin a second time 
 <em>if, and only if</em> we get a head. Nobody would be the least surprised that 
 we obtained more tails than heads then. 
 In contrast if we randomly decided to toss again that coin without 
 knowing anything about it, we would expect to get as many heads as tails.
-This is the same kind of problem here, if only more subtle... 
+This is the same kind of problem here, if only more subtle&hellip; 
 The algorithm actually <em>favors</em> <strong>underestimated</strong> probabilities for 
-the disfavored events.</p>
+the disfavored&nbsp;events.</p>
 <p>So, the multi-armed bandit strategy <em>does</em> skew the data 
 (as opposed to another one of the
 <a href="http://stevehanov.ca/blog/index.php?id=132">other blog post</a>
 unproved claims). 
 This can have serious implications especially if we need to determine
 whether there is a difference or not (like in clinical trials) or if we need
-to quantify these differences (for instance to perform multivariate analysis).</p>
+to quantify these differences (for instance to perform multivariate&nbsp;analysis).</p>
 <p><em>At this point, we have seen many of the advantages of the A/B testing method
 over the multi-armed bandit strategy.
 In particular we proved that the multi-armed bandit method needs bigger sample
@@ -244,12 +240,12 @@ size to provide the same guarantees as A/B testing (be it to exhibit the same
 power in contingency tests, to correctly choose the best site variant
 or to give an accurate result). We also showed how the multi-armed bandit
 strategy does skew the results (especially when there is no difference between
-the clicks-through rates to begin with).</em></p>
+the clicks-through rates to begin&nbsp;with).</em></p>
 <p><em>We could conclude that comparisons at the same sample size are not fair:
 the methods should be compared at the same level guarantees. As well, the
 multi-armed bandit method should <strong>not</strong> be used in cases where determining
 whether there is a difference or not matters (especially in drug trials in
-opposition to what is recommanded in the other blog post).</em></p>
+opposition to what is recommanded in the other blog&nbsp;post).</em></p>
 <p><em>Would that be enough to completely ditch the multi-armed bandit strategy?
 Not at all: the multi-armed bandit method has been designed to maximize
 the reward. This is what we are going to investigate in the

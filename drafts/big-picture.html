@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
         <meta charset="utf-8" />
-        <title>The big picture</title>
+        <title>The big picture</title>
         <link rel="stylesheet" href="/theme/css/main.css" />
 
         <!--[if IE]>
@@ -21,8 +21,8 @@
   <article>
     <header>
       <h1 class="entry-title">
-        <a href="/big-picture.html" rel="bookmark"
-           title="Permalink to The big picture">The big picture</a></h1>
+        <a href="/drafts/big-picture.html" rel="bookmark"
+           title="Permalink to The big picture">The big&nbsp;picture</a></h1>
     </header>
 
     <div class="entry-content">
@@ -41,29 +41,29 @@
 multi-armed bandit strategy does not systematically beat
 the A/B testing data-gathering process in gathering the most clicks overall.
 The main thing that is really lacking at this stage is an estimate of when
-one method yields more clicks that the other.</em></p>
+one method yields more clicks that the&nbsp;other.</em></p>
 <p><em>This is the reason why we are going to perform a few parametric studies. As
 every variables are pretty decorrelated from each other, we are going to study
 their effect on the total click-through rate one after the other. That said,
 there is still a very important variable that should be represented in each 
 case, the sample size, because this is the main question we have to answer
-before launching the campaign.</em></p>
-<h1 id="sample-size-of-the-testing-stage">Sample size of the testing stage</h1>
+before launching the&nbsp;campaign.</em></p>
+<h1 id="sample-size-of-the-testing-stage">Sample size of the testing&nbsp;stage</h1>
 <p>As we have already explained, an A/B testing campaign is usually divided into 
 two stages: <em>testing</em> (where all the variants are served, the data gathered
-and then analysed) and <em>exploitation</em> (where the best variant is served). </p>
+and then analysed) and <em>exploitation</em> (where the best variant is&nbsp;served). </p>
 <p>We would like to know the effect of changing
 the ratio of these two stages on the number of clicks (while keeping the size
-of the population, i.e. the totality of our visitors, constant).</p>
+of the population, i.e. the totality of our visitors,&nbsp;constant).</p>
 <p>But the number of clicks is not that easy to reason about as the sample size
 changes. That is why we are going to normalize them by the population size
-to get the total click-through rate for each setup.</p>
-<p>This is what we did to get the following figure:</p>
+to get the total click-through rate for each&nbsp;setup.</p>
+<p>This is what we did to get the following&nbsp;figure:</p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 " src="/images/clicks_vs_sample_size.svg"/>
 </center></p>
-<p>There is a <em>lot</em> to say about this figure:</p>
+<p>There is a <em>lot</em> to say about this&nbsp;figure:</p>
 <ol>
 <li>First we see that at the smallest sample sizes, the number of clicks
    increases sharply until around <span class="math">\(500\)</span> samples and then starts to fall
@@ -78,53 +78,53 @@ to get the total click-through rate for each setup.</p>
 </ul>
 </li>
 <li>The click-through rates at smaller sample sizes are smaller because 
-   we tend to wrongly choose the worse variant more.</li>
+   we tend to wrongly choose the worse variant&nbsp;more.</li>
 <li>The optimum value is a trade-off between being wrong because of the small
    sample size and spending too many trials in the testing stage at the
-   expense of the exploitation stage.</li>
+   expense of the exploitation&nbsp;stage.</li>
 <li>The final value obtained in the multi-armed bandit framework corresponds
    to the <em>set-and-forget</em> setup which seems to perform worse that the
-   two-staged setup for adequate sample sizes.</li>
+   two-staged setup for adequate sample&nbsp;sizes.</li>
 <li>The A/B testing method seems to indeed beat the multi-armed bandit strategy for
-   small sample sizes:</li>
+   small sample&nbsp;sizes:</li>
 </ol>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 " src="/images/closer_clicks_vs_sample_size.svg"/>
 </center></p>
-<p>This allows us to conclude that:</p>
+<p>This allows us to conclude&nbsp;that:</p>
 <ul>
 <li>The A/B testing method is indeed competitive and can provide similar or
-  higher numbers of clicks than the multi-armed bandit strategy.</li>
-<li>It seems to do so at lower sample sizes (i.e. requires shorter testing stages).</li>
+  higher numbers of clicks than the multi-armed bandit&nbsp;strategy.</li>
+<li>It seems to do so at lower sample sizes (i.e. requires shorter testing&nbsp;stages).</li>
 <li>The <em>set-and-forget</em> setup is not optimal in the sense that the two-staged
-  algorithm is more likely to give mores clicks.</li>
+  algorithm is more likely to give mores&nbsp;clicks.</li>
 <li>Yet, the set-and-forget algorithm is much simpler to setup than the other
-  options (basically nothing to think about, to calculate or to design).</li>
+  options (basically nothing to think about, to calculate or to&nbsp;design).</li>
 <li>The two-staged setup of the multi-armed bandit strategy is interesting 
-  because it provides a longer "sweet spot", i.e. the sample sizes yielding the
+  because it provides a longer &ldquo;sweet spot&rdquo;, i.e. the sample sizes yielding the
   highest overall number of clicks spreads over thousands of trials while the
-  equivalent A/B testing setup spreads over hundreds of trials only.</li>
+  equivalent A/B testing setup spreads over hundreds of trials&nbsp;only.</li>
 </ul>
-<p>Still, we can hardly justify that these results can be generalized, that's
-why we need to perform a few parametric studies.</p>
-<h1 id="population-size">Population size</h1>
+<p>Still, we can hardly justify that these results can be generalized, that&rsquo;s
+why we need to perform a few parametric&nbsp;studies.</p>
+<h1 id="population-size">Population&nbsp;size</h1>
 <p>The first parameter we want to alter is the population size
 (total number of visitors, in the testing stage and afterwards): 
 what would happen to the total click-through rates vs. the (testing) sample size
-if the (total) population size was different?</p>
-<p>We want to represent 3 variables here:</p>
+if the (total) population size was&nbsp;different?</p>
+<p>We want to represent 3 variables&nbsp;here:</p>
 <ol>
-<li>the total click-through rate depending on both</li>
-<li>the sample size</li>
-<li>and the population size.</li>
+<li>the total click-through rate depending on&nbsp;both</li>
+<li>the sample&nbsp;size</li>
+<li>and the population&nbsp;size.</li>
 </ol>
 <p>In order to make things clearer, we are going to represent the click-through
 rate as an image using a color code: the blue patches represent areas where
 the A/B testing provides a higher click-through rate overall, green patches 
 represent areas where the multi-armed bandit strategy provides the 
 highest click-through rates and the white patches represent the areas where
-both methods provide the similar numbers of clicks.</p>
+both methods provide the similar numbers of&nbsp;clicks.</p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 " src="/images/diff_vs_sample_size_vs_tot.svg"/>
@@ -132,83 +132,82 @@ both methods provide the similar numbers of clicks.</p>
 <p>The left-hand part of the figure is mainly blue: this means that the A/B
 testing data-gathering method does provide the highest 
 click-through rates at lower sample sizes for any population sizes, just like
-we have already observed above.</p>
+we have already observed&nbsp;above.</p>
 <p>Yet at the smallest population sizes, that blue domain is much smaller and the
 green patches are much more present and stronger; the domain where the A/B
-testing data gathering method is more efficient is much smaller.</p>
+testing data gathering method is more efficient is much&nbsp;smaller.</p>
 <p>As we have already stated in the previous posts, there is a trade-off between
 correctly choosing the most efficient variant and spending more time in the
-testing stage:</p>
+testing&nbsp;stage:</p>
 <ul>
 <li>If the population size is small, the relative time spent in
     the testing stage in large. In that case, the multi-armed bandit method
     should provide more clicks: it was precisely designed to maximize the number
-    of clicks in the testing stage.</li>
+    of clicks in the testing&nbsp;stage.</li>
 <li>If the population size is large, the relative time spent in the testing
     stage should quickly become negligible. In that case, the higher
     correctness provided by the A/B testing data-gathering method should give
-    it the advantage.</li>
+    it the&nbsp;advantage.</li>
 </ul>
 <p>This is exactly what we observe here. So the larger the population, the wider
-the range of superiority of A/B testing.</p>
+the range of superiority of A/B&nbsp;testing.</p>
 <h1 id="epsilon">Epsilon</h1>
 <p>The multi-armed bandit strategy is defined with one extra parameter:
 <span class="math">\(\varepsilon\)</span> (epsilon). This is the parameter that defines the values
 of <span class="math">\(P(\text{favored})\)</span> and <span class="math">\(P(\text{disfavored})\)</span>. Changing its value from
 the default <span class="math">\(90\%\)</span> may also change the range of superiority of the A/B testing
-data-gathering method. This is what we represented in the following figure:</p>
+data-gathering method. This is what we represented in the following&nbsp;figure:</p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 " src="/images/epsilon_vs_sample_size_vs_tot.svg"/>
 </center></p>
 <p>We can see that the uppermost part of the figure
 (for <span class="math">\(\varepsilon \approx 100\%\)</span> is entirely blue. This is caused by the
-inability of the algorithm to explore other options than the default one.</p>
+inability of the algorithm to explore other options than the default&nbsp;one.</p>
 <p>On the other side (<span class="math">\(\varepsilon \approx 0\%\)</span>), the line is mostly white. This
 was expected: in this case, there is no difference between the A/B testing data
-gathering method and the multi-armed bandit one.</p>
+gathering method and the multi-armed bandit&nbsp;one.</p>
 <p>There seems to be a green (i.e. multi-armed bandit) sweet spot around
 <span class="math">\(\varepsilon \approx 70-90\%\)</span>. It is not clear whether or not that spot
-moves with other parameters.</p>
+moves with other&nbsp;parameters.</p>
 <p>As in the previous analysis, the leftmost part of the figure is mostly blue
-while the rightmost part is mostly green. The same explanation applies.</p>
+while the rightmost part is mostly green. The same explanation&nbsp;applies.</p>
 <p>So higher values of <span class="math">\(\varepsilon\)</span> counter-intuitively tend to favor A/B
 testing, values around <span class="math">\(70-90\%\)</span> tend to favor the multi-armed bandit method
-while lower values tend to make the differences disappear.</p>
-<h1 id="difference-in-click-through-rates">Difference in click-through rates</h1>
+while lower values tend to make the differences&nbsp;disappear.</p>
+<h1 id="difference-in-click-through-rates">Difference in click-through&nbsp;rates</h1>
 <p>This time, let <span class="math">\(P(O|A) = 10\%\)</span> and define <span class="math">\(P(O|B) = P(O|A) + {\Delta}P(O|X)\)</span>.
 <span class="math">\({\Delta}P(O|X)\)</span> represents the difference in click-through rate and we are
-going to see how the methods behave by changing this:</p>
+going to see how the methods behave by changing&nbsp;this:</p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 " src="/images/POXdiff_vs_sample_size_vs_tot.svg"/>
 </center></p>
 <p>As we can see, the bottom line is completely white: when there is no
 difference, there is no reason that any of the methods would guess right more
-often than not.</p>
+often than&nbsp;not.</p>
 <p>Then the blue patches prevail on the leftmost side of the figure and almost
 disappear around <span class="math">\(30\%\)</span>, leaving more room for green patches. 
 As we said earlier, the A/B testing data-gathering method is better
 at identifying the best variant at smaller sample sizes than the multi-armed
 bandit strategy. However, when the variants yield completely different
-click-through rates, that "correctness" advantage of the A/B testing
-data-gathering method whithers and the multi-armed bandit method takes over.</p>
+click-through rates, that &ldquo;correctness&rdquo; advantage of the A/B testing
+data-gathering method whithers and the multi-armed bandit method takes&nbsp;over.</p>
 <p>That said, for differences that large, we do not expect the A/B testing
 data-gathering method to become universally worse than the multi-armed bandit
 strategy: A/B testing is supposed to remain superior (or as good) but for even
-lower sample sizes (below, outside of the represented range).</p>
+lower sample sizes (below, outside of the represented&nbsp;range).</p>
 <p>So the low difference tend to increase the range of superiority of the A/B
-testing data-gathering method while larger differences do reduce it.</p>
-<h1 id="click-through-rate-base-value">Click-through rate base value</h1>
+testing data-gathering method while larger differences do reduce&nbsp;it.</p>
+<h1 id="click-through-rate-base-value">Click-through rate base&nbsp;value</h1>
 <p>As a last parameter, we would like to see the impact of offsetting the
 click-through rates while keeping their difference constant. In the following
-figure, the offset represents the position of the central value </p>
+figure, the offset represents the position of the central&nbsp;value </p>
 <p><center>
 <img alt="Here should be a figure (try with another web browser).
 " src="/images/POXorig_vs_sample_size_vs_tot.svg"/>
 </center></p>
-<p>As usual, blue patches on the left, green patches on the right. Same
-explanation.</p>
+<p>As usual, blue patches on the left, green patches on the right. Same&nbsp;explanation.</p>
 <p>The largest superiority range of A/B testing is obtained for an offset
 of <span class="math">\(30-35\%\)</span> which, in fact corresponds to <span class="math">\(P(O|A) = 40-45\%\)</span> and 
 <span class="math">\(P(O|B) = 55-60\%\)</span>, i.e. when the click-through rates are centered around
@@ -221,16 +220,16 @@ We also demonstrated that it tends to perform better for epsilon values around
 <span class="math">\(\varepsilon \approx 40-90\%\)</span>. Finally, it performs better for large <span class="math">\(P(O|X)\)</span>
 differences, especially if at least one is close to <span class="math">\(0\%\)</span> or <span class="math">\(100\%\)</span>.</em></p>
 <p><em>On the other hand, the A/B testing data-gathering method performed the best
-at the smallest sample sizes in all these cases.</em></p>
+at the smallest sample sizes in all these&nbsp;cases.</em></p>
 <p><em>The original claim that the multi-armed bandit method yield a
-higher number of clicks is therefore not true -- not even generally.
+higher number of clicks is therefore not true &mdash; not even generally.
 Yet the multi-armed bandit strategy does provide some advantages
 like its ease of use (in the case of the set-and-forget setup) or its
 capability to adapt to poorly designed testing campaigns while retaining
-acceptable click-through rates.</em></p>
-<p><em>In the <a href="/ab-mab-conclusion.html">next and last post</a>,
+acceptable click-through&nbsp;rates.</em></p>
+<p><em>In the <a href="/drafts/ab-mab-conclusion.html">next and last post</a>,
 we are going to talk a little bit about
-uncertainties and finally conclude.</em></p>
+uncertainties and finally&nbsp;conclude.</em></p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
         indent = "0em",
