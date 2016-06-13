@@ -1,78 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-        <meta charset="utf-8" />
-        <title>Presentation of the two methods</title>
-        <link rel="stylesheet" href="/theme/css/main.css" />
 
-        <!--[if IE]>
-            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Gaël">
+  <meta name="description" content="Posts and writings by Gaël">
+
+
+<meta name="keywords" content="">
+
+  <title>
+    And yet it moves
+&ndash; Presentation of the two&nbsp;methods  </title>
+
 </head>
 
-<body id="index" class="home">
-        <header id="banner" class="body">
-                <h1><a href="/">And yet it moves! </a></h1>
-                <nav><ul>
-                    <li class="active"><a href="/category/data-processing.html">Data processing</a></li>
-                </ul></nav>
-        </header><!-- /#banner -->
-<section id="content" class="body">
-  <article>
+<body>
+  <aside>
+    <div id="user_meta">
+      <div id="metalogo">
+        <a href="/">
+          <img src="/images/logo.svg" alt="logo" id="logo">
+        </a>
+        <a href="/" id="title">And yet it moves</a>
+      </div>
+      <p></p>
+      <ul>
+            <li><a href="/category/data-processing.html" class="active">Data processing</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
     <header>
-      <h1 class="entry-title">
-        <a href="/drafts/presentation-ab-testing-and-multi-armed-bandit.html" rel="bookmark"
-           title="Permalink to Presentation of the two methods">Presentation of the two&nbsp;methods</a></h1>
+      <p>
+      <a href="/">Index</a> &brvbar; <a href="/archives.html">Archives</a>
+      </p>
     </header>
 
-    <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2016-04-28T17:24:00+01:00">
-                Published: jeu. 28 avril 2016
-        </abbr>
-
-        <address class="vcard author">
-                By                         <a class="url fn" href="/author/gael.html">Gaël</a>
-        </address>
-<p>In <a href="/category/data-processing.html">Data processing</a>.</p>
-
-</footer><!-- /.post-info -->      <p>This post is the second technical post of the <a href="{filename}01-index.md">series</a>.</p>
+<article>
+  <div class="article_meta">
+    <p style="text-align: right; margin: 0;">Posted on: Thu, 28 Apr 2016</p>
+  </div>
+  <div class="article_title">
+    <h3><a href="/drafts/presentation-ab-testing-and-multi-armed-bandit.html">Presentation of the two&nbsp;methods</a></h3>
+  </div>
+  <div class="article_text">
+    <p>This post is the second technical post of the <a href="{filename}01-index.md">series</a>.</p>
 <p><em><a href="{filename}03-basic_probabilities.md">We just saw</a>
 that statistics could be used to determine the behavior of an
 entire population (e.g. the website visitors) from a sample of it
 (a few visitors). This property is what makes statistics particularly
-suitable to website&nbsp;optimization.</em></p>
+suitable to website optimization.</em></p>
 <p><em>However, these fundamental principles do not dictate an unique way of actually
 carrying out a testing campaign: there are a lot of different ways to gather
 and analyse the data. We are going to present in this post the two frameworks
 that we are going to compare in the remaining posts: the A/B testing method and
-one of the multi-armed bandit&nbsp;strategies.</em></p>
-<h1 id="ab-testing">A/B&nbsp;testing</h1>
+one of the multi-armed bandit strategies.</em></p>
+<h1 id="ab-testing">A/B testing</h1>
 <h2 id="purpose">Purpose</h2>
 <p>The only purpose of the <a href="https://en.wikipedia.org/wiki/A/B_testing">A/B testing</a>
-method is to <em>efficiently</em> answer a single&nbsp;question:</p>
+method is to <em>efficiently</em> answer a single question:</p>
 <blockquote>
-<p>Are <span class="math">\(P(O|A)\)</span> and <span class="math">\(P(O|B)\)</span> significantly&nbsp;different?</p>
+<p>Are <span class="math">\(P(O|A)\)</span> and <span class="math">\(P(O|B)\)</span> significantly different?</p>
 </blockquote>
-<p>which, in plain words, can be translated&nbsp;to:</p>
+<p>which, in plain words, can be translated to:</p>
 <blockquote>
 <p>Does the website variant with the orange <em>Buy Now!</em> button 
 <strong>actually</strong> yield a different click-through rate than the variant
-with the green <em>Buy Now!</em>&nbsp;button?</p>
+with the green <em>Buy Now!</em> button?</p>
 </blockquote>
 <p>It is one of the most prevalent methods to do website optimization, mostly
-because of the guarantees it provides (see&nbsp;below).</p>
-<h2 id="data-gathering">Data&nbsp;gathering</h2>
-<p>The data are gathered ensuring that <span class="math">\(\tilde{P}(A) &asymp; \tilde{P}(B)\)</span> at any given time 
+because of the guarantees it provides (see below).</p>
+<h2 id="data-gathering">Data gathering</h2>
+<p>The data are gathered ensuring that <span class="math">\(\tilde{P}(A) ≈ \tilde{P}(B)\)</span> at any given time 
 (i.e. the variant with the orange button is served as often as the
 variant with the green button, in parallel).
 This is necessary to avoid introducing a bias
 and this is actually the most efficient data gathering scheme to answer
-the question&nbsp;above.</p>
-<h2 id="data-analysis">Data&nbsp;analysis</h2>
+the question above.</p>
+<h2 id="data-analysis">Data analysis</h2>
 <p>Whether or not the difference between <span class="math">\(P(O|A)\)</span> and <span class="math">\(P(O|B)\)</span> is (actually)
 significant is assessed by a <strong>statistical test</strong> (in this case,
-<a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test">Fisher&rsquo;s exact test</a>).
+<a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test">Fisher’s exact test</a>).
 If the differences are <strong>proven</strong> significant, they can be calculated with 
 a known
 <a href="https://en.wikipedia.org/wiki/Accuracy_and_precision">precision</a>, <a href="https://en.wikipedia.org/wiki/Statistical_significance">degree of
@@ -81,13 +100,13 @@ significance</a> and
 <p>Roughly speaking, these constitute the level of confidence we have in the
 results and the testing campaign can easily be set up so that a given
 confidence is reached. This is what makes the A/B testing method so appealing
-for web&nbsp;optimization.</p>
-<h1 id="multi-armed-bandit_1">Multi-armed&nbsp;bandit</h1>
+for web optimization.</p>
+<h1 id="multi-armed-bandit_1">Multi-armed bandit</h1>
 <h2 id="purpose_1">Purpose</h2>
 <p>The main purpose of the <a href="https://en.wikipedia.org/wiki/Multi-armed_bandit">multi-armed bandit</a>
 strategy is to <em>maximize</em> the reward (the click-through rate in this case),
-even in the data-gathering&nbsp;stage.</p>
-<h2 id="data-gathering_1">Data&nbsp;gathering</h2>
+even in the data-gathering stage.</p>
+<h2 id="data-gathering_1">Data gathering</h2>
 <p>The particular strategy given in the
 <a href="http://stevehanov.ca/blog/index.php?id=132">blog post</a>
 consists in determining which event (i.e. variant of the website)
@@ -99,67 +118,67 @@ thereafter presented more often, <em>etc</em>.</p>
 another description separating an <em>exploration</em> stage from and <em>exploitation</em>
 one. It is strictly equivalent to the description above. In particular, we
 can easily relate <span class="math">\(\varepsilon\)</span> from the blog post to the probability of
-serving one given&nbsp;event:
+serving one given event:
 </p>
 <div class="math">$$P(\text{disfavored}) = \frac{1-\varepsilon}{\text{number of events}}$$</div>
 <p>
 <center>and</center>
 </p>
 <div class="math">$$P(\text{favored}) = \varepsilon + P(\text{disfavored}).$$</div>
-<h2 id="data-analysis_1">Data&nbsp;analysis</h2>
+<h2 id="data-analysis_1">Data analysis</h2>
 <p>There is no data analysis stage in this strategy: whichever variant exhibits
 the highest click-through rate at the end of the campaign is selected.
 This will not prevent us from performing a contingency test, but at this
 stage, we have no idea of what the results would be. This also means that
 in the current state of our knowledge, the multi-armed bandit strategy may
-not provide the same &ldquo;confidence&rdquo; guarantees as the A/B testing method.
-This is something we will have to&nbsp;estimate.</p>
-<h1 id="summary-of-the-differences_1">Summary of the&nbsp;differences</h1>
-<p>There are two main differences between the&nbsp;methods:</p>
+not provide the same “confidence” guarantees as the A/B testing method.
+This is something we will have to estimate.</p>
+<h1 id="summary-of-the-differences_1">Summary of the differences</h1>
+<p>There are two main differences between the methods:</p>
 <ol>
 <li><em>Data-gathering stage:</em> in A/B testing, <span class="math">\(P(A) = P(B)\)</span> (all site variants 
    are served with an equal probability) whereas in the multi-armed bandit 
    strategy <span class="math">\(P(X) &gt; P(Y)\)</span> if <span class="math">\(P(O|X) &gt; P(O|Y)\)</span> (the variant giving the 
-   highest click-through rate is served more&nbsp;often).</li>
+   highest click-through rate is served more often).</li>
 <li><em>Data-analysis stage:</em> there is an actual statistical test in A/B testing
-   (hence &ldquo;testing&rdquo;) while there is none in the multi-armed bandit&nbsp;strategy.</li>
+   (hence “testing”) while there is none in the multi-armed bandit strategy.</li>
 </ol>
 <p>However, as we said earlier, we can perform a contingency test in the
 multi-armed bandit framework (given a few assumptions). That is why what we
 are really going to compare, except in one case,
 is the result of the data-gathering stage.
 We are still going to refer to A/B <em>testing</em> though: this is a convenient
-shortcut, even in cases where no actual testing is&nbsp;performed.</p>
-<h1 id="alleged-remaining-differences">Alleged remaining&nbsp;differences?</h1>
+shortcut, even in cases where no actual testing is performed.</p>
+<h1 id="alleged-remaining-differences">Alleged remaining differences?</h1>
 <p>Other differences are advertised in the
 <a href="http://stevehanov.ca/blog/index.php?id=132">blog post</a>,
-most notably&nbsp;that:</p>
+most notably that:</p>
 <ul>
-<li>A/B testing cannot handle more than two options at&nbsp;once.</li>
+<li>A/B testing cannot handle more than two options at once.</li>
 <li>Variants can be added or removed at any time in the multi-armed bandit 
-strategy but not in A/B&nbsp;testing.</li>
+strategy but not in A/B testing.</li>
 </ul>
-<p>These claims are not&nbsp;accurate:</p>
+<p>These claims are not accurate:</p>
 <ul>
 <li>A/B testing does not handle more than two options at once <em>by definition</em>,
 however its generalization to any number of variants cannot be more trivial, 
-either directly (Fisher&rsquo;s exact test is not limited to two options) 
-or indirectly (by comparing each variant two by&nbsp;two).</li>
+either directly (Fisher’s exact test is not limited to two options) 
+or indirectly (by comparing each variant two by two).</li>
 <li>Variants can actually be removed and added at any time in both methods
 even though this might not be implemented in some tools. In particular,
 A/B testing does not <em>rely</em> on even sampling to provide correct results:
 it is only a way to avoid some bias and to get the most significant results
-out of a given number of&nbsp;trials.</li>
+out of a given number of trials.</li>
 </ul>
 <p><em>So, we are going to compare two methods: A/B testing and the multi-armed
 bandit. These methods mainly differ in their data-gathering techniques
-that we are going to compare by performing Monte-Carlo&nbsp;simulations.</em></p>
+that we are going to compare by performing Monte-Carlo simulations.</em></p>
 <p><em>Even though we provide a Jupyter notebook containing all the code used to
 perform our simulations, we wanted to provide at least the basic
 implementations of the models in the <a href="{filename}05-creating_models.md">next post</a>.
 People wanting raw results can jump directly 
 <a href="{filename}06-pros_of_AB.md">further</a>
-to the exploitation of these&nbsp;models.</em></p>
+to the exploitation of these models.</em></p>
 <script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
         indent = "0em",
@@ -217,20 +236,14 @@ to the exploitation of these&nbsp;models.</em></p>
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 </script>
-    </div><!-- /.entry-content -->
+  </div>
+    <div style="clear: both;"></div>
+</article>
 
-  </article>
-</section>
-        <section id="extras" class="body">
-        </section><!-- /#extras -->
 
-        <footer id="contentinfo" class="body">
-                <address id="about" class="vcard body">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
-                </address><!-- /#about -->
-
-                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
-        </footer><!-- /#contentinfo -->
-
+    <div id="ending_message">
+      <p>&copy; Gaël. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Giulio Fidente on <a href="https://github.com/gfidente/pelican-svbhack" target="_blank">github</a>. </p>
+    </div>
+  </main>
 </body>
 </html>

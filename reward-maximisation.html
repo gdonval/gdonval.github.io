@@ -1,225 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-        <meta charset="utf-8" />
-        <title>Reward maximisation</title>
-        <link rel="stylesheet" href="/theme/css/main.css" />
 
-        <!--[if IE]>
-            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Gaël">
+  <meta name="description" content="Posts and writings by Gaël">
+
+
+<meta name="keywords" content="">
+
+  <title>
+    And yet it moves
+&ndash; Reward&nbsp;maximisation  </title>
+
 </head>
 
-<body id="index" class="home">
-        <header id="banner" class="body">
-                <h1><a href="/">And yet it moves! </a></h1>
-                <nav><ul>
-                    <li class="active"><a href="/category/data-processing.html">Data processing</a></li>
-                </ul></nav>
-        </header><!-- /#banner -->
-<section id="content" class="body">
-  <article>
+<body>
+  <aside>
+    <div id="user_meta">
+      <div id="metalogo">
+        <a href="/">
+          <img src="/images/logo.svg" alt="logo" id="logo">
+        </a>
+        <a href="/" id="title">And yet it moves</a>
+      </div>
+      <p></p>
+      <ul>
+            <li><a href="/category/data-processing.html" class="active">Data processing</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
     <header>
-      <h1 class="entry-title">
-        <a href="/reward-maximisation.html" rel="bookmark"
-           title="Permalink to Reward maximisation">Reward&nbsp;maximisation</a></h1>
+      <p>
+      <a href="/">Index</a> &brvbar; <a href="/archives.html">Archives</a>
+      </p>
     </header>
 
-    <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2016-05-18T16:17:00+01:00">
-                Published: mer. 18 mai 2016
-        </abbr>
-
-        <address class="vcard author">
-                By                         <a class="url fn" href="/author/gael.html">Gaël</a>
-        </address>
-<p>In <a href="/category/data-processing.html">Data processing</a>.</p>
-
-</footer><!-- /.post-info -->      <p>I showed in the previous section that the A/B testing data-gathering method
-by itself has some advantages over the <span class="caps">MAB</span>&nbsp;strategy.</p>
-<p>But how does this translates to <em>what really matters</em>&trade;,&nbsp;clicks?</p>
-<p>In contrast with the previous section, we are not just interested in the
-<em>testing stage</em> anymore: we want to know which method would provide the highest
-click-through rate overall (so during testing and after, once the
-alleged best-performing variant is put in production). 
-I will first give an example in a specific setup
-and then explore the difference in behavior in a much broader scope to avoid
-making &ldquo;general&rdquo; conclusions out of a single specific&nbsp;example.</p>
-<h1 id="effect-of-the-sample-size">Effect of the sample&nbsp;size</h1>
-<p>So, I first simulated a large number of complete campaigns 
-(i.e. testing stage followed by an exploitation stage using the testing results).
-I assumed here that the population is composed of <span class="math">\(20000\)</span> visitors in total.
-In this particular example, I used the two-stepped variant of the <span class="caps">MAB</span> strategy
-provided that the set-and-forget mode is reached when the sample size is equal
-to the population size. I obtained the following&nbsp;figure:</p>
-<p><img alt="If you can't see the figure, please try another web browser which supports
-SVG images" src="/images/clicks_vs_sample_size.svg"/></p>
-<p>As we can see, there are different areas where each method shines but we are
-going to get back to that in detail a bit&nbsp;later. </p>
-<p>The asymptotic behavior of the two two-stepped methods are however&nbsp;similar:</p>
-<ul>
-<li>We can see that the total click-through rate rises quickly as smaller 
-    sample sizes (left of the figure), yet A/B testing systematically reaches 
-    higher click rates at smaller sample sizes than in the two-stepped <span class="caps">MAB</span>&nbsp;strategy.</li>
-<li>A maximum is then reached in both methods: that maximum is reached, again,
-    at smaller sample sizes in the A/B testing&nbsp;framework.</li>
-<li>Finally, the total click rate decreases linearly toward the final value in
-    each case (which corresponds to the set-and-forget scenario). These limit
-    values are known and could be calculated in each case: for A/B testing
-    this is generally the average of the individual click-through rates whereas
-    in the <span class="caps">MAB</span> strategy, this average is weighted so that higher values are&nbsp;obtained.</li>
+<article>
+      <div class="series_links">
+        <a style="float: left;" href='/basics.html'>
+            &lt;&lt; First article of the series
+        </a>
+      </div>
+  <div class="article_meta">
+    <p style="text-align: right; margin: 0;">Posted on: Fri, 10 Jun 2016</p>
+  </div>
+  <div class="article_title">
+    <h3><a href="/reward-maximisation.html">Reward&nbsp;maximisation</a></h3>
+  </div>
+  <div class="article_text">
+    <div class="section" id="effect-of-the-sample-size">
+<h2 id="effect-of-the-sample-size">Effect of the sample size</h2>
+<p>I showed in the previous section that the A/B testing data-gathering
+method by itself has some advantages over the multi-armed bandit strategy.</p>
+<p>But how does this translates to <em>what really matters</em>, clicks?</p>
+<p>I first simulated a large number of complete campaigns (i.e. exploration
+stage followed by an exploitation stage using the testing results).
+Each time, I could get the total number of clicks yielded in our simulated
+website lifetime. However the total number of click is not that convenient:
+the simulated population in that particular example was composed of
+<span class="math">\(20000\)</span> visitors. But what if I chose a different size? The total number
+of clicks would not be directly comparable. That is why I decided to calculate
+the (simulated) total click-through rate: the number of clicks divided by the
+number of visitors.</p>
+<p>In this particular example, I used the two-stepped variant of
+the multi-armed bandit strategy provided that the set-and-forget mode is
+reached when the sample size is equal to the population size. I obtained the
+following figure:</p>
+<div class="figure">
+<img alt="" src="/images/clicks_vs_sample_size.svg"/>
+<p class="caption">The total number of click was calculated for different sample sizes
+(in a population of <span class="math">\(20000\)</span> visitors). Both methods were applied on
+those samples only. The best-performing variant was served to all the
+remaining visitors. Each time, the overall number of clicks was calculated
+and divided by the population size. The <em>set-and-forget</em> mode is achieved
+when the sample size equals the population size.</p>
+<div class="legend">
+<p><span class="math">\(P(O|A)\)</span>: (hidden) real click-through rate of the <span class="math">\(A\)</span>
+(<object class="align-middle" data="/images/orange_btn.svg" type="image/svg+xml">orangeBtn</object>) website variant used as an input in the simulation.</p>
+<p><span class="math">\(P(O|B)\)</span>: (hidden) real click-through rate of the <span class="math">\(B\)</span>
+(<object class="align-middle" data="/images/green_btn.svg" type="image/svg+xml">greenBtn</object>) website variant used as an input in the simulation.</p>
+</div>
+</div>
+<ul class="simple">
+<li>We can see that in both the 2-staged cases the total click-through rate rises
+quickly at smaller
+sample sizes (left of the figure), yet A/B testing systematically
+yield higher click rates in that part of the figure. This is a direct
+consequence of what we showed earlier: A/B testing requires fewer trials to
+reach a given confidence.</li>
+<li>A maximum is then reached in both methods: that maximum is reached
+at smaller sample sizes in the A/B testing framework.</li>
+<li>Finally, the total click rate decreases linearly toward the final
+value in each case (which corresponds to the set-and-forget
+scenario). In A/B testing, it is roughly the arithmetic mean of the
+individual click rates while in the multi-armed bandit strategy, it
+is a weighted mean.</li>
 </ul>
-<p>This kind of curves seems to be generally misunderstood: as the <span class="caps">MAB</span> strategy
-provides higher values on the largest range, people tend to think that the <span class="caps">MAB</span>
-strategy is therefore generally better. <strong>This is incorrect</strong>.</p>
-<p>What this curve really means is that A/B testing does actually compete fairly
-well with the <span class="caps">MAB</span> strategy in terms of click-through rates. But let me explain
-using the following&nbsp;close-up:</p>
-<p><img alt="If you can't see the figure, please try another web browser which supports
-SVG images" src="/images/closer_clicks_vs_sample_size.svg"/></p>
-<p>Roughly the same total number of clicks can be obtained in A/B testing, 
-using smaller sample sizes (and therefore shorter testing periods).
-So there are conditions in which A/B testing performs as good as the <span class="caps">MAB</span> 
-strategy click-wise! All we have to do is to find these conditions. Easier
-said than done, but it should be possible using the same tools that allows us to
-determine the sample size until&nbsp;now.</p>
-<p>That said, the <span class="caps">MAB</span> strategy behaves better than A/B testing asymptotically:
-this is actually what this algorithm is good at and what it was designed for.
-That property could come in handy: it could be considered as a
-safety net in many situations and it makes the set-and-forget mode something
-that can be actually&nbsp;used.</p>
-<p>However, telling when to stop in the two-stepped case is even harder than with
-A/B testing (because we don&rsquo;t know how many trials the algorithm is going to
-spend for each variant, especially for smaller sample&nbsp;sizes).</p>
-<p>The alleged click-through rate superiority of the <span class="caps">MAB</span> strategy is not that
-clear anymore, in fact A/B testing seems to provide equivalent results at even
-smaller sample sizes. However, this does not mean that the <span class="caps">MAB</span> strategy
-performs badly click-wise. Moreover, these results were obtained in a single
-setup. It is now time to explore a bit&nbsp;more.</p>
-<h1 id="population-size">Population&nbsp;size</h1>
-<p>In the above example, the sample size was chosen equal to <span class="math">\(20000\)</span>. But what
-would happen to the total click-through rate if that population size was
-different? This is what I assessed in the following&nbsp;figure:</p>
-<p><img alt="If you can't see the figure, please try another web browser which supports
-SVG images" src="/images/diff_vs_sample_size_vs_tot.svg"/></p>
-<p>The blue patches represent conditions in which A/B testing provide
-significantly better click-through rate on average than the <span class="caps">MAB</span> strategy.
-The opposite situation is represented by the green patches. The white patches
-represent conditions in which both methods give roughly the same click-through&nbsp;rates.</p>
-<p>It appears clearly that A/B testing is systematically better at lower sample
-sizes. As the population increases, the range of sample sizes in which
-A/B testing performs better becomes wider. Though not represented on the
-figure, the difference in the maximum click-through rate between the methods
-is negligible. This means that A/B testing can systematically reach the same
-number of clicks as the <span class="caps">MAB</span> strategy.
-Again, the <span class="caps">MAB</span> strategy performs obviously as well at higher sample&nbsp;sizes.</p>
+<p>But let’s zoom-in a little bit to talk about the domain of superiority of each methods.</p>
+</div>
+<div class="section" id="domains-of-superiority">
+<h2 id="domains-of-superiority">Domains of superiority</h2>
+<p>Here is a close-up of the previous figure:</p>
+<div class="figure">
+<img alt="" src="/images/closer_clicks_vs_sample_size.svg"/>
+<p class="caption">Close-up of the previous figure. There are 3 domains of superiority:
+first the multi-armed bandit method used in the set-and-forget mode,
+then A/B testing, then the two-staged multi-armed bandit strategy
+(i.e. the strategy is used only on a limited sample and the best variant
+is then served to all the remaining visitors).</p>
+<div class="legend">
+<p><span class="math">\(P(O|A)\)</span>: (hidden) real click-through rate of the <span class="math">\(A\)</span>
+(<object class="align-middle" data="/images/orange_btn.svg" type="image/svg+xml">orangeBtn</object>) website variant used as an input in the simulation.</p>
+<p><span class="math">\(P(O|B)\)</span>: (hidden) real click-through rate of the <span class="math">\(B\)</span>
+(<object class="align-middle" data="/images/green_btn.svg" type="image/svg+xml">greenBtn</object>) website variant used as an input in the simulation.</p>
+</div>
+</div>
+<p>This illustrates the fact that a properly designed A/B testing campaign can
+beat the multi-armed bandit strategy on its own grounds: maximizing the reward.
+As it turned out, saying that this multi-armed bandit strategy was designed to
+maximize the reward is not rigorously correct: A/B testing seems to be able to
+provide just as many clicks if carefully setup. What the multi-armed bandit
+strategy is really good at instead is <em>maintaining a high click-through rate over
+a large period of time</em>.</p>
+<p>But you could rightfully argue that these results are really local: what if we
+used another population size instead? or another <span class="math">\(\varepsilon\)</span>?
+or other hidden click-through rates? <em>etc</em>. Would the A/B testing
+data-gathering strategy still perform well? In what circumstances? This is why
+I am going to calculate the same kind</p>
+</div>
+<div class="section" id="population-size">
+<h2 id="population-size">Population size</h2>
+<p>In the example above, the sample size was chosen equal to <span class="math">\(20000\)</span>.
+But what would happen to the total click-through rate if that population
+size was different?</p>
+<p>I performed the exact same kind of Monte-Carlo simulation as above.
+But this time,
+I decided to represent the difference in overall click-through rates: by using
+a convenient colour scheme, we can directly see which algorithm yielded the
+highest total click-through rate (and therefore the greatest number of clicks)
+given a population size, a sample size, an <span class="math">\(\varepsilon\)</span> for a given
+hidden truth:</p>
+<div class="figure">
+<img alt="" src="/images/diff_vs_sample_size_vs_tot.svg"/>
+<p class="caption">Difference in the total click-through rates calculated in the <strong>2-staged mode</strong>
+for both A/B testing and the multi-armed bandit data gathering strategies.
+For each population size, there is a range of sample sizes where the A/B
+testing data-gathering strategy performs as well or better on average
+than the multi-armd bandit strategy. At their respective peak, both methods
+reach roughly the same maximal value.</p>
+<div class="legend">
+<p>Blue patches: A/B testing provides roughly significantly better
+click-through rates on average, in these conditions.</p>
+<p>Green patches: the multi-armed bandit strategy in its two-staged mode
+provides roughly significantly better click-through rates.</p>
+<p>White patches: the difference on average is not significant.</p>
+</div>
+</div>
+<p>It appears clearly that A/B testing is systematically better at lower
+sample sizes. As the population increases, the range of sample sizes in
+which A/B testing performs better becomes wider. Though not represented
+on the figure, the difference in the maximum click-through rate between
+the methods is negligible. This means that A/B testing can
+systematically reach the same number of clicks as the other strategy.
+Conversely, that two-staged multi-armed bandit strategy can systematically
+reach the same number of clicks as A/B testing.</p>
 <p>This can be explained by the asymptotic behaviour of the two methods as
 illustrated previously: as the population size increases, the worse-case
-scenario (i.e. the set-and-forget mode where all the time is spent in the
-testing stage) is reached further and further on the right
-resulting in a much gentler slope in both methods. However, as the slope in the
-A/B testing method was much steeper to begin with, the improvement is more
-spectacular there, resulting in a wider range of&nbsp;superiority.</p>
-<h1 id="mab-asymmetry"><span class="caps">MAB</span>&nbsp;asymmetry</h1>
-<p>As I have explained earlier, the core of the <span class="caps">MAB</span> strategy consists in favouring
-the best-performing variant. The strength of this favour is quantified by a
-variable called <span class="math">\(\varepsilon\)</span> (the Greek letter &ldquo;epsilon&rdquo;). 
-When <span class="math">\(\varepsilon = 0\%\)</span>, the
-<span class="caps">MAB</span> strategy favours the seemingly best-performing variant by <span class="math">\(0\%\)</span>: this is
-equivalent to proper A/B testing data-gathering (no variant is ever favored). 
-When <span class="math">\(\varepsilon = 100\%\)</span>, the algorithm is trapped: whichever variant was 
-found the best initially will be the only one&nbsp;served.</p>
-<p><img alt="If you can't see the figure, please try another web browser which supports
-SVG images" src="/images/epsilon_vs_sample_size_vs_tot.svg"/></p>
-<p>Again, A/B testing seems to perform better at lower sample sizes. Though not
-shown in the figure, the maximal value reached with each method for each
-<span class="math">\(\varepsilon\)</span> is again nearly equal (i.e. click-wise, the two methods perform 
-as well,&nbsp;again).</p>
-<p>It also appears clearly that, in this particular setup,
-the two methods are roughly equivalent below <span class="math">\(\varepsilon = 50\%\)</span>
-at smaller sample sizes. Yet the <span class="caps">MAB</span> strategy remains better at higher sample
-sizes. 
-This means that, click-wise, the <span class="caps">MAB</span> strategy in these setups is always as good
-or better than A/B testing on average. The price to pay is obviously that the
-<span class="caps">MAB</span> strategy gives worse and worse results at even higher sample sizes
-(especially you don&rsquo;t want a small <span class="math">\(\varepsilon\)</span> in the set-and-forget&nbsp;mode).</p>
-<p>This can be explained by considering yet again the first figure of this post:
-<span class="math">\(\varepsilon\)</span> basically determine the right-hand asymptotic value: 
-the higher <span class="math">\(\varepsilon\)</span>, the higher the value provided the population size is
-large enough. &ldquo;Large enough&rdquo; depends on <span class="math">\(\varepsilon\)</span> too: the higher
-<span class="math">\(\varepsilon\)</span>, the larger the population should be. This is a trade-off and an
-optimum <span class="math">\(\varepsilon\)</span> can be computed given the population size using&nbsp;simulations.</p>
-<h1 id="click-through-rate-reference-value">Click-through rate reference&nbsp;value</h1>
-<p>Until now, I have basically always set one click-through rate at <span class="math">\(10\%\)</span> 
-and the other at <span class="math">\(15\%\)</span> (corresponding to a difference of <span class="math">\(15 - 10 = 5\%\)</span>)
-and I want to see what would happen if I introduced an <strong>offset</strong> to shift these
-values upward. This is what I&nbsp;obtained:</p>
-<p><img alt="If you can't see the figure, please try another web browser which supports
-SVG images" src="/images/POXorig_vs_sample_size_vs_tot.svg"/></p>
-<p>It appears very clearly that the largest range of A/B testing superiority is
-obtained for an offset of <span class="math">\(\sim 35\%\)</span>: this corresponds to the actual
-click-through rates <span class="math">\(45\%\)</span> and <span class="math">\(60\%\)</span>, i.e. almost centered on <span class="math">\(50\%\)</span>.</p>
-<p>This result is actually cause by a change in the relative power of the two
-data-gathering strategies: when the click-through rates are around <span class="math">\(50\%\)</span>, the
-A/B testing method finds the correct variant even faster than in other cases
-while the <span class="caps">MAB</span> strategy is not really better because it keeps favouring one
-variant at the expense of the&nbsp;others.</p>
-<h1 id="difference-in-click-through-rates">Difference in click-through&nbsp;rates</h1>
-<p>The last parameter I wanted to study is the difference itself between the
-click-through rates. This is what I represented in the following figure
-(the <span class="math">\({\Delta}P(O|X)\)</span> notation represents this&nbsp;difference):</p>
-<p><img alt="If you can't see the figure, please try another web browser which supports
-SVG images" src="/images/POXdiff_vs_sample_size_vs_tot.svg"/></p>
-<p>It appears clearly that the <span class="caps">MAB</span> strategy provides a far broader range of
-superiority than A/B testing. Should we conclude that the <span class="caps">MAB</span> strategy is
-simply better for large differences? Not this time: there is always a range of
-values in which A/B testing provides better results but it is smaller: we would
-need a far finer grid to see it. For instance, a difference of <span class="math">\(50\%\)</span> can be
-correctly identified <span class="math">\(95\%\)</span> of the time with only a few dozens of trials while
-the minimum sample size represented here is actually <span class="math">\(100\)</span>.</p>
-<p>The wider range of click-wise superiority of the <span class="caps">MAB</span> strategy here can be
-explained again by the power of the strategies: higher differences are much
-easier to identify (it requires far fewer trials to do so). Therefore the <span class="caps">MAB</span>
-strategy gets correct for smaller sample sizes and gets the advantage. Yet,
-there is no inversion in the relative power of the methods: A/B testing remains
-better but the <span class="caps">MAB</span> strategy catches up&nbsp;faster.</p>
-<h1 id="summary-what-is-the-mab-strategy-good-at">Summary: what is the <span class="caps">MAB</span> strategy good&nbsp;at?</h1>
-<p>In practice, saying that this particular implementation of the multi-armed
-bandit strategy has been developed to maximise the number of clicks appears 
-misleading. This is <strong>not</strong> what it does.
-What it was actually designed for (and does very well) is keeping that total
-number of clicks very high for larger samples sizes. See the&nbsp;difference?</p>
-<p>It is even possible to use the <span class="caps">MAB</span> strategy in a set-and-forget mode and yet
-get acceptable results: no initial calculations, basically nothing to do,
-a real no-brainer. However, this comes at a price: that mode yields worse
-results than both two-stepped strategies. Again, this is a&nbsp;trade-off.</p>
-<p><em>Is that all? Then why would the original blogger present the <span class="caps">MAB</span> strategy as
-something that always beats A/B testing?</em> Simple: a fair amount of zealotry
-coupled with overconfidence and a shallow knowledge. <em>Really?!</em> Well, most
-likely yes, but that&rsquo;s not all: there is not just one single way to design an A/B&nbsp;campaign. </p>
-<p>Depending on the context, the optimal sample size calculated to be used in A/B
-testing can vary greatly and fall off pretty far away from the optimal settings
-from the maximum reward point of view. The reason is that gathering the maximal
-number of clicks on average (i.e. over multiple campaigns) is not the same as
-providing a correct answer with a particular &ldquo;level of&nbsp;confidence&rdquo;.</p>
-<p>Just one example: assume that you defined the sample size to that
-you have a <span class="math">\(95\%\)</span> chance to correctly identify a <span class="math">\(1\%\)</span> difference. As it
-turned out, there was actually a difference of <span class="math">\(5\%\)</span>. </p>
-<p>From the test
-perspective, this is good: you are even more confident that the variant you
-found os the best is indeed the best.
-Click-wise, this is another story: you spent more time testing at the expense
-of the total number of clicks. This is the huge drawback of A/B
-testing: it has not been designed to yield a high click-through rate in a wide
-range of sample sizes so even a few hundred extra trials can lead to a dramatic
-decrease of the total number of&nbsp;clicks.</p>
-<p>In that specific way, the <span class="caps">MAB</span> strategy do behave better in general provided
-that the population size is large enough. This is just a different&nbsp;trade-off.</p>
-<p><em>So, in practice, does that mean that using the <span class="caps">MAB</span> strategy is all right?</em>
-Most likely, yes. Though there are other drawbacks to consider: the next (and
-last post) of this series is dedicated to the description of a few of&nbsp;them.</p>
-<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+scenario (i.e. the set-and-forget mode where all the time is spent in
+the exploration stage) is reached at higher and higher sample sizes resulting
+in a much gentler slope in both methods. However, as the slope in the
+A/B testing method was much steeper to begin with, the improvement is
+more visible there, resulting in a wider range of superiority.</p>
+</div>
+<div class="section" id="set-and-forget-vs-two-staged">
+<h2 id="set-and-forget-vs-two-staged">Set-and-forget vs. two-staged</h2>
+<p>You could wonder why we compared the A/B testing data-gathering method
+with a two-staged multi-armed bandit strategy and not its set-and-forget variant:</p>
+<div class="figure">
+<img alt="" src="/images/diff_vs_sample_size_vs_tot_forget.svg"/>
+<p class="caption">Difference in total click-through rates obtained using the two-staged
+A/B testing data-gathering method vs. the multi-armed bandit strategy in
+its <strong>set-and-forget mode</strong>.
+The superiority range of the A/B testing strategy is much wider: the
+set-and-forget mode performs worse than the two-staged one.
+The sample size is defined for A/B testing only: the multi-armed bandit
+being used in the set-and-forget mode, its sample size corresponds to the
+whole population size.</p>
+</div>
+<p>The first reason is that in spite of its being far more complicated to setup,
+the two-staged mode yields greater click-through rates on a wider range of
+sample sizes. So the two-staged mode could be considered better-performing
+than the set-and-forget mode.</p>
+<p>The second reason is that a pure set-and-forget mode does not seem desirable in
+practice in most cases: do you really want to provide each variant you ever
+wanted to test for the whole life of your website? Most certainly not: at some
+point you would stop and only provide whichever variant you choose.</p>
+<p>Once again, we see that the multi-armed bandit strategy is getting further and
+further away from being <em>always</em> (or even <em>generally</em>) better than A/B testing
+considering what really counts for a business getting its money from clicks:
+the overall click-through rate.</p>
+</div>
+<div class="section" id="mab-asymmetry">
+<h2 id="mab-asymmetry"><span class="caps">MAB</span> asymmetry</h2>
+<p>As I have explained earlier, the core of the <span class="caps">MAB</span> strategy consists in
+favouring the best-performing variant to keep on testing while gathering more
+clicks. The magnitude of that imbalance is
+quantified by a variable called <span class="math">\(\varepsilon\)</span> (the Greek letter “epsilon”).</p>
+<p>For instance, when <span class="math">\(\varepsilon = 0\%\)</span>, the <span class="caps">MAB</span> strategy favours the
+seemingly best-performing variant by <span class="math">\(0\%\)</span>: this is equivalent to
+a proper A/B testing data-gathering strategy (no variant is actually ever
+favored). When <span class="math">\(\varepsilon = 100\%\)</span>, the algorithm is trapped:
+whichever variant was found the best at the very first step will be the only
+one served ever.</p>
+<div class="figure">
+<img alt="" src="/images/epsilon_vs_sample_size_vs_tot.svg"/>
+<p class="caption">The overall click-through rate as a function of the sample size
+and <span class="math">\(\varepsilon\)</span>, the magnitude by which seemingly best variant
+at some point is favoured (i.e. presented more often).</p>
+</div>
+<p>At <span class="math">\(\varepsilon = 0\%\)</span>, no strategy is really favoured: this was
+expected as they are strictly equivalent.</p>
+<p>Then as <span class="math">\(\varepsilon\)</span> increases, the difference between the strategies
+becomes more and more apparent (the patches become darker and darker).</p>
+<p>Regarding the ranges of superiority: it is at it’s widest for the
+multi-armed bandit strategy around <span class="math">\(50\%\)</span>. As <span class="math">\(\varepsilon\)</span>
+goes away from that value, the A/B testing data-gathering strategy seems
+to be better.</p>
+<p><em>Is that :math:`varepsilon = 50%` value always the same as other parameters
+vary?</em> I don’t know, and if I had to guess I would say <em>no</em>.
+However the existence of such a parameter maximizing the
+range of superiority of the multi-armed bandit strategy seems guaranteed:</p>
+<ul class="simple">
+<li>at low <span class="math">\(\varepsilon\)</span>, the two strategy are practically equivalent;</li>
+<li>at intermediary <span class="math">\(\varepsilon\)</span>, there is a sample size beyond which
+both strategy will be mostly correct yet the multi-armed bandit method
+does so while favouring one (which should mostly be the best);</li>
+<li>at high <span class="math">\(\varepsilon\)</span>, the multi-armed bandit method has fewer
+and fewer opportunities to estimate the click-through rate and
+can be trapped in a non-optimal setup for quite some time.</li>
+</ul>
+</div>
+<div class="section" id="offset-in-the-hidden-click-through-rate">
+<h2 id="offset-in-the-hidden-click-through-rate">Offset in the (hidden) click-through rate</h2>
+<p>Until now, I have basically always defined one click-through rate at
+<span class="math">\(10\%\)</span> and the other at <span class="math">\(15\%\)</span> (corresponding to a
+difference of <span class="math">\(15 - 10 = 5\%\)</span>).
+We could wonder whether offsetting these two values upward
+(while keeping the difference constant) would change
+anything in the range of superiority of both our data-gathering strategies:</p>
+<div class="figure">
+<img alt="" src="/images/POXorig_vs_sample_size_vs_tot.svg"/>
+<p class="caption">Effect of offsetting both the real (and hidden) click-through rate
+values: the range of superiority of the A/B testing data-gathering strategy
+is maximized for values centered around <span class="math">\(50\%\)</span> (which corresponds to
+an offset of <span class="math">\(\sim 35\%\)</span>).</p>
+</div>
+<p>It appears very clearly that the largest range of A/B testing data-gathering
+superiority is obtained for an offset of <span class="math">\(\sim 35\%\)</span>: this
+corresponds to the actual click-through rates <span class="math">\(45\%\)</span> and
+<span class="math">\(60\%\)</span>, i.e. almost centered on <span class="math">\(50\%\)</span>.</p>
+<p>This result is actually caused by a change in the relative power of the
+two data-gathering strategies: when the click-through rates are around
+<span class="math">\(50\%\)</span>, the A/B testing method finds the correct variant even
+faster than in other cases. At the same time, the multi-armed bandit strategy
+does not really benefits from this because it is generally going to
+favour one variant at the expense of the others, thus not visibly increasing
+its power as quickly.</p>
+</div>
+<div class="section" id="difference-in-click-through-rates">
+<h2 id="difference-in-click-through-rates">Difference in click-through rates</h2>
+<p>The last parameter I wanted to study is the difference itself between
+the click-through rates. This is what I represented in the following
+figure (the <span class="math">\({\Delta}P(O|X)\)</span> notation represents this difference):</p>
+<div class="figure">
+<img alt="" src="/images/POXdiff_vs_sample_size_vs_tot.svg"/>
+<p class="caption">Effect of the difference in click-through rate on the overall observed
+click-through rate. The bigger the difference, the widest the range of
+superiority of the multi-armed bandit strategy.</p>
+</div>
+<p>It appears clearly that the multi-armed bandit strategy has the widest range of
+superiority (i.e. greater number of clicks over a broader sample size range)
+as the difference increases.</p>
+<p>Yet A/B testing does not become irrelevant: as the difference gets bigger, one
+needs far smaller sample sizes to get relevant information. This means that the
+blue patches (showing the superiority range of the A/B testing data-gathering
+strategy) should still be there but at even smaller sample sizes than the
+minimum of <span class="math">\(80\)</span> samples that we represented here.</p>
+</div>
+<div class="section" id="summary-what-is-the-mab-strategy-good-at">
+<h2 id="summary-what-is-the-mab-strategy-good-at">Summary: what is the <span class="caps">MAB</span> strategy good at?</h2>
+<p>In practice, saying that this particular implementation of the
+multi-armed bandit strategy has been developed to maximise the number of
+clicks appears misleading. This is <strong>not</strong> what it does. What it was
+actually designed for (and does very well) is keeping that total number
+of clicks very high in a larger range of samples sizes. See the difference?</p>
+<p>This is why the multi-armed bandit strategy can be used in a set-and-forget
+mode. This is also why we observe such a wide superiority range as the
+difference in click-through rate increases. And yet this is why there is always
+a range of sample sizes in which the A/B testing strategy will be as good on average.</p>
+<p>The multi-armed bandit method is also quite good at doing damage control
+in poorly set up data-gathering campaigns. Such a campaign requires that you
+set the minimum difference to be found. The sample size is then calculated
+depending on this difference threshold. If you expected a difference of
+<span class="math">\(1\%\)</span> but actually got a difference of <span class="math">\(50\%\)</span>, chances are high
+that you spent far too much time in the exploration stage for the A/B testing
+data-gathering strategy to be competitive. In the same setup, the multi-armed
+bandit strategy would quickly favour the best variant and avoid such a loss.</p>
+<p><em>Does that make the multi-armed bandit method the way to go for web
+optimisation?</em> Not necessarily: the next (and last) post of the series
+is dedicated to giving elements to answer that question.</p>
+</div>
+<script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
         indent = "0em",
         linebreak = "false";
@@ -276,20 +379,24 @@ last post) of this series is dedicated to the description of a few of&nbsp;them.
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 </script>
-    </div><!-- /.entry-content -->
+  </div>
+      <div class="series_links">
+        <a style="float: left;" href='/pros-of-AB-testing.html'>
+            &lt; Part 3: The pros of the A/B testing&nbsp;method
+        </a>
+      </div>
+    <div class="series_links">
+        <a style="float: right;" href='/challenging-conclusion.html'>
+            Part 5: Challenging the claims and&nbsp;conclusion &gt;
+        </a>
+    </div>
+    <div style="clear: both;"></div>
+</article>
 
-  </article>
-</section>
-        <section id="extras" class="body">
-        </section><!-- /#extras -->
 
-        <footer id="contentinfo" class="body">
-                <address id="about" class="vcard body">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
-                </address><!-- /#about -->
-
-                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
-        </footer><!-- /#contentinfo -->
-
+    <div id="ending_message">
+      <p>&copy; Gaël. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Giulio Fidente on <a href="https://github.com/gfidente/pelican-svbhack" target="_blank">github</a>. </p>
+    </div>
+  </main>
 </body>
 </html>

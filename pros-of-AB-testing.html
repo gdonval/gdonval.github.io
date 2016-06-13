@@ -1,132 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-        <meta charset="utf-8" />
-        <title>The pros of the A/B testing method</title>
-        <link rel="stylesheet" href="/theme/css/main.css" />
 
-        <!--[if IE]>
-            <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Gaël">
+  <meta name="description" content="Posts and writings by Gaël">
+
+
+<meta name="keywords" content="">
+
+  <title>
+    And yet it moves
+&ndash; The pros of the A/B testing&nbsp;method  </title>
+
 </head>
 
-<body id="index" class="home">
-        <header id="banner" class="body">
-                <h1><a href="/">And yet it moves! </a></h1>
-                <nav><ul>
-                    <li class="active"><a href="/category/data-processing.html">Data processing</a></li>
-                </ul></nav>
-        </header><!-- /#banner -->
-<section id="content" class="body">
-  <article>
+<body>
+  <aside>
+    <div id="user_meta">
+      <div id="metalogo">
+        <a href="/">
+          <img src="/images/logo.svg" alt="logo" id="logo">
+        </a>
+        <a href="/" id="title">And yet it moves</a>
+      </div>
+      <p></p>
+      <ul>
+            <li><a href="/category/data-processing.html" class="active">Data processing</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
     <header>
-      <h1 class="entry-title">
-        <a href="/pros-of-AB-testing.html" rel="bookmark"
-           title="Permalink to The pros of the A/B testing method">The pros of the A/B testing&nbsp;method</a></h1>
+      <p>
+      <a href="/">Index</a> &brvbar; <a href="/archives.html">Archives</a>
+      </p>
     </header>
 
-    <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2016-05-15T12:26:00+01:00">
-                Published: dim. 15 mai 2016
-        </abbr>
-
-        <address class="vcard author">
-                By                         <a class="url fn" href="/author/gael.html">Gaël</a>
-        </address>
-<p>In <a href="/category/data-processing.html">Data processing</a>.</p>
-
-</footer><!-- /.post-info -->      <p><center><img alt="" src="/images/dab.gif"/></center></p>
-<p>In order to bring some nuances and perspective into the discussion
-(a.k.a. <em>unsupported claims smashing</em>&trade;), this post is
-dedicated to showing what A/B testing is good at and how it compares to the
-multi-armed bandit&nbsp;strategy.</p>
-<h1 id="ab-testing-is-more-powerful-than-mab-testing">A/B testing is more powerful than <span class="caps">MAB</span>&nbsp;testing</h1>
-<p>When a (statistical) test is applied to data, it answers the question for which
-it was designed with a given <em>level of significance</em> and <em>power</em> (the two
-components of what we could improperly call &ldquo;level of confidence&rdquo; for&nbsp;simplicity):</p>
-<ul>
-<li>
-<p>The <em>level of significance</em> is the probability of correctly concluding 
-    that the variants (<img alt="the orange" src="/images/orange_btn.svg"/>
-    and <img alt="the green button" src="/images/green_btn.svg"/> here) <em>have <strong>no</strong>
-    significant impact</em> on the click-through&nbsp;rate.</p>
-</li>
-<li>
-<p>The <em>power</em> is the probability of correctly concluding that the variants
-    <strong>have</strong> <em>a significant impact</em> on the click-through&nbsp;rate.</p>
-</li>
+<article>
+      <div class="series_links">
+        <a style="float: left;" href='/basics.html'>
+            &lt;&lt; First article of the series
+        </a>
+      </div>
+  <div class="article_meta">
+    <p style="text-align: right; margin: 0;">Posted on: Sun, 15 May 2016</p>
+  </div>
+  <div class="article_title">
+    <h3><a href="/pros-of-AB-testing.html">The pros of the A/B testing&nbsp;method</a></h3>
+  </div>
+  <div class="article_text">
+    <img alt="" class="align-center" src="/images/dab.gif" style="width: 640px; height: auto; max-width: 100%;"/>
+<div class="section" id="test-setup">
+<h2 id="test-setup">Test setup</h2>
+<p>As we have already said, when a (statistical) test is applied to data,
+it answers the question for which it was designed with a given
+<em>level of significance</em> and <em>power</em>; two components of what we could
+improperly call “level of confidence” for simplicity. Here:</p>
+<ul class="simple">
+<li>The <em>level of significance</em> is the probability of correctly
+concluding that the variants (<object class="align-middle" data="/images/orange_btn.svg" type="image/svg+xml">orangeBtn</object> and <object class="align-middle" data="/images/green_btn.svg" type="image/svg+xml">greenBtn</object>
+here) <em>have no significant impact</em> on the click-through rate.</li>
+<li>The <em>power</em> is the probability of correctly concluding that the
+variants <em>have a significant impact</em> on the click-through rate.</li>
 </ul>
-<p>The power is the most important estimator of confidence in our case:
-if we see a difference, we would like to know if it is significant.
-So we modelled<todo: link=""> the whole process and estimated the power in each
-method at a given level of significance and for different sample&nbsp;sizes.</todo:></p>
-<p><img alt="If you can't see the figure, please try another web browser which supports
-SVG images" src="/images/power_vs_sample_size.svg"/></p>
-<p>It appears clearly that A/B testing reaches higher (and better) powers at far
-smaller sample sizes: it typically requires sample sizes <em>5 times</em> smaller
-than with <span class="caps">MAB</span>!</p>
-<p><em>Why is that?</em> As we claimed above when presenting the A/B testing method, it
-is generally more efficient to provide each variant as often than to favour
-one. A/B testing is better here and we didn&rsquo;t even have to look for a
-convoluted setup: this is valid for all the setups we&nbsp;tried!</p>
-<h1 id="ab-testing-is-correct-more-often-at-small-sample-sizes">A/B testing is correct more often at small sample&nbsp;sizes</h1>
-<p>There are cases however where no test is used. This is equivalent to saying
-that you choose a level of significance of <span class="math">\(0\%\)</span>. Yet that does not mean that
-the power would reach <span class="math">\(100\%\)</span> (in this case, the power is equivalent to how
-often the seemingly best-performing variant is really the best&nbsp;performer).</p>
-<p>As it turned out, even in
-that case, the A/B data-gathering strategy does provide better&nbsp;results:</p>
-<p><img alt="If you can't see the figure, please try another web browser which supports
-SVG images" src="/images/correct_vs_sample_size.svg"/></p>
-<p>In this example, the A/B framework again provide better results at smaller
-sample sizes. For instance, the A/B framework only requires <span class="math">\(300\)</span> trials
-to be correct in <span class="math">\(9\)</span> campaigns out of <span class="math">\(10\)</span>. To provide the <em>same</em> guarantee,
-the <span class="caps">MAB</span> strategy would require <span class="math">\(600\)</span> trials: twice as&nbsp;many!</p>
-<p>This can be explained the same way as above: providing each website variant as
-often to the visitors to get the best-performing variant is more&nbsp;efficient.</p>
-<h1 id="ab-testing-provides-more-accurate-estimations-of-the-differences">A/B testing provides more accurate estimations of the&nbsp;differences</h1>
-<p>A correct estimation of the differences in click-through rates is important:
-it is required in methods relying on its quantifications (e.g. multivariate
-analysis) but also to actually determine which variant performs&nbsp;better:
-</p>
-<div class="math">$$a &gt; b$$</div>
-<p> is equivalent&nbsp;to </p>
-<div class="math">$$a - b &gt; 0\text{.}$$</div>
-<p>I estimated the difference in click-through rates (denoted <span class="math">\(P(O|B) - P(O|A)\)</span> 
-in the figure &mdash; see why here<todo: link="">) in the same setup as above and
-obtained the following&nbsp;figure:</todo:></p>
-<p><img alt="If you can't see the figure, please try another web browser which supports
-SVG images" src="/images/difference_vs_sample_size.svg"/></p>
-<p>We can clearly see that the A/B testing data gathering method converges toward
-the expected value of <span class="math">\(5\%\)</span> much faster than the <span class="caps">MAB</span> strategy. Worse, that
-remaining difference, though small, actually goes on and on for a very long&nbsp;time.</p>
-<h1 id="summary-what-is-ab-testing-good-at">Summary: what is A/B testing good&nbsp;at?</h1>
-<p>These results illustrated what it means for A/B testing to answer the question:
-<em>Is there a&nbsp;difference?</em></p>
-<ul>
-<li>Its data-gathering scheme is efficient: it provide a very high power in the
-    contingency tests, it leads to correct results more often at lower sample
-    rates than with the <span class="caps">MAB</span>&nbsp;strategy.</li>
-<li>It makes use of the contingency test to actually answer that question at a
-    given &ldquo;level of confidence&rdquo; (significance and power). It is also used to
-    determine what the sample size should&nbsp;be.</li>
-<li>It also generally provides more precise and more accurate estimates of the 
-    actual difference in click-through&nbsp;rates.</li>
+<p>These two values in turn depend on the chosen sample size and the actual
+difference in click-through rate: greater sample sizes and click-through rate
+differences would both increase the level of significance and the power of the test.</p>
+<p>Given a minimum level of significance, a minimum power and a detection
+threshold (i.e. minimal significant difference to be identified), the sample
+size is fully determined <em>from the start</em> in A/B testing.</p>
+<p>In the multi-armed bandit framework, the sample size cannot be determined that
+way basically because we don’t know when and how many times the algorithm is
+going to favour another variant (i.e. switch).
+In practice, this means that you have actually
+no idea of the level of confidence to expect in that case.</p>
+<p><em>Really? No idea at all?!</em> Actually, you could resort to mathematics and even
+numerical modelling to get a proper estimate. However that estimate depends on
+the current state of the algorithm (so it is calculated after, not before).
+That said, I will show some hints that the proposed multi-armed bandit
+strategy do introduce a bias that would invalidate our confidence estimates.
+Anyway, there seems to be no straightforward way to properly setup the
+multi-armed bandit strategy from the start.</p>
+<p>On the other hand, the multi-armed
+bandit strategy can be setup in a <em>set-and-forget</em> mode. You would not get any
+more information about the confidence in the results, but you could use your
+whole population instead of a sample of it and yet keep a high overall
+click-through rate.</p>
+</div>
+<div class="section" id="a-b-testing-is-more-powerful">
+<h2 id="ab-testing-is-more-powerful">A/B testing is more powerful</h2>
+<p>Now, determining that the variants do have an impact on the
+click-through rate seems more important that proving that there is none.
+So, it seems interesting to represent the power of each method at a given
+level of significance to see how large the sample should be to reach a given power:</p>
+<div class="figure">
+<img alt="" src="/images/power_vs_sample_size.svg"/>
+<p class="caption">Monte-Carlo estimation of the power of Fisher’s exact contingency test
+as a function of the sample size (i.e. the number of visitors “spent” in
+each method) at a given level of significance.</p>
+<div class="legend">
+<p>significance: level of significance of the contingency test.</p>
+<p><span class="math">\(P(O|A)\)</span>: (hidden) real click-through rate of the <span class="math">\(A\)</span>
+(<object class="align-middle" data="/images/orange_btn.svg" type="image/svg+xml">orangeBtn</object>) website variant used as an input in the simulation.</p>
+<p><span class="math">\(P(O|B)\)</span>: (hidden) real click-through rate of the <span class="math">\(B\)</span>
+(<object class="align-middle" data="/images/green_btn.svg" type="image/svg+xml">greenBtn</object>) website variant used as an input in the simulation.</p>
+<p>error bands: error bar on the averaged power value.</p>
+</div>
+</div>
+<p>It appears clearly that A/B testing reaches higher powers
+at far smaller sample sizes: A/B testing typically requires sample sizes <em>5
+times</em> smaller than the multi-armed bandit strategy!</p>
+<p><em>Why is that?</em> As I claimed before when I presented the A/B testing
+method, it is generally more efficient to provide each variant as often
+than it is to favour one. We will see by the end of this series that A/B
+testing seems always more powerful than the multi-armed bandit strategy with
+non-zero <span class="math">\(varepsilon\)</span>.</p>
+</div>
+<div class="section" id="a-b-testing-is-correct-more-often-at-small-sample-sizes">
+<h2 id="ab-testing-is-correct-more-often-at-small-sample-sizes">A/B testing is correct more often at small sample sizes</h2>
+<p>The problem with power estimations is that they are tied to one test.</p>
+<p>From what I have seen the original blog author and quite a few people out there
+really don’t see the appeal of proper testing (e.g. the original blog author
+seems to believe that A/B testing is one-staged and he never ever talks about
+confidence, significance, power and even testing). In a nutshell: they are
+resorting to their good luck alone to provide a correct answer.</p>
+<p>From the testing perspective however, <strong>assuming</strong> that there is a difference
+anyway is equivalent to choosing a level of significance of <span class="math">\(0\%\)</span>.
+Yet that does not mean that the power would reach <span class="math">\(100\%\)</span>: we can still
+choose the wrong variant.</p>
+<p>So, if we ditch the test all together, would the multi-armed
+bandit method be correct more often than A/B testing? The answer turned out to
+be (at least generally) <em>no</em>:</p>
+<div class="figure">
+<img alt="" src="/images/correct_vs_sample_size.svg"/>
+<p class="caption">The A/B testing data-gathering strategy and the multi-armed bandit strategy
+were used to estimate the click-through rates of both variants of the website.</p>
+<div class="legend">
+<p><span class="math">\(P(O|A)\)</span>: (hidden) real click-through rate of the <span class="math">\(A\)</span>
+(<object class="align-middle" data="/images/orange_btn.svg" type="image/svg+xml">orangeBtn</object>) website variant used as an input in the simulation.</p>
+<p><span class="math">\(P(O|B)\)</span>: (hidden) real click-through rate of the <span class="math">\(B\)</span>
+(<object class="align-middle" data="/images/green_btn.svg" type="image/svg+xml">greenBtn</object>) website variant used as an input in the simulation.</p>
+<p>error bands: error bar on the averaged power value.</p>
+</div>
+</div>
+<p>In this example, the A/B framework again provide better results at
+smaller sample sizes. For instance, the A/B framework only requires
+<span class="math">\(300\)</span> trials to be correct <span class="math">\(9\)</span> times out of
+<span class="math">\(10\)</span>. To provide the <em>same</em> guarantee, the <span class="caps">MAB</span> strategy would
+require <span class="math">\(600\)</span> trials: twice as many!</p>
+<p>This can be explained the same way as above: providing each website
+variant as often to the visitors to get the best-performing variant is
+more efficient. This also means that comparing the performances of the two
+methods at the same sample size is largely misleading.</p>
+</div>
+<div class="section" id="a-b-testing-provides-more-accurate-estimations-of-the-differences">
+<h2 id="ab-testing-provides-more-accurate-estimations-of-the-differences">A/B testing provides more accurate estimations of the differences</h2>
+<p>A correct estimation of the differences in click-through rates is
+important: it is obviously required in methods relying on its quantifications
+(e.g. multivariate analysis) but also to actually determine which
+variant performs better as stating that</p>
+<div class="math">
+\begin{equation*}
+a &gt; b
+\end{equation*}
+</div>
+<p>is equivalent to</p>
+<div class="math">
+\begin{equation*}
+a - b &gt; 0\text{.}
+\end{equation*}
+</div>
+<p>I estimated the difference in click-through rates in the same setup
+as above and obtained the following figure:</p>
+<div class="figure">
+<img alt="" src="/images/difference_vs_sample_size.svg"/>
+<p class="caption">Estimates of the difference in click-through rate at different sample sizes
+using the A/B testing data-gathering strategy and the multi-armed bandit
+strategy (<span class="math">\(\varepsilon = 90\%\)</span>). The A/B testing method converges
+needs a smaller sample size to reach the expected value of
+<span class="math">\(P(O|B) - P(O|A) = 5\%\)</span>.</p>
+<div class="legend">
+<p><span class="math">\(P(O|A)\)</span>: (hidden) real click-through rate of the <span class="math">\(A\)</span>
+(<object class="align-middle" data="/images/orange_btn.svg" type="image/svg+xml">orangeBtn</object>) website variant used as an input in the simulation.</p>
+<p><span class="math">\(P(O|B)\)</span>: (hidden) real click-through rate of the <span class="math">\(B\)</span>
+(<object class="align-middle" data="/images/green_btn.svg" type="image/svg+xml">greenBtn</object>) website variant used as an input in the simulation.</p>
+<p>error bands: error bar on the averaged power value.</p>
+</div>
+</div>
+<p>We can clearly see that the A/B testing data gathering method converges
+toward the expected value of <span class="math">\(5\%\)</span> much faster than the <span class="caps">MAB</span>
+strategy. Worse, that remaining difference, though small, actually goes
+on and on for a very long time. This remaining difference is not enough to
+talk about a bias in the results yet, this is one of the many reasons why
+we need to go further there.</p>
+</div>
+<div class="section" id="summary-what-is-a-b-testing-good-at">
+<h2 id="summary-what-is-ab-testing-good-at">Summary: what is A/B testing good at?</h2>
+<p>These results illustrated what it means for A/B testing to answer the
+question: <em>Is there a difference?</em></p>
+<ul class="simple">
+<li>Its data-gathering scheme is <strong>efficient</strong>: it provide a very high power
+in the contingency tests, it leads to correct results more often at
+lower sample rates than with the <span class="caps">MAB</span> strategy.</li>
+<li>It makes use of the contingency test to actually answer that question
+at a given “level of confidence” (significance and power). It is also
+used to determine what the sample size should be from the start.</li>
+<li>It also generally provides more precise and more accurate estimates
+of the actual difference in click-through rates.</li>
 </ul>
-<p>Beyond invalidating the most outrageous claims of the original blog post,
-these results outline another very important fact: the <span class="caps">MAB</span> strategy generally
-requires more samples to provide the exact same guarantees as A/B testing.
-This means in particular that it would not be fair to compare click-through
-rates at a single given sample size: that sample size should be adjusted separately
-for each method in order to provide the same&nbsp;guarantees.</p>
-<p>From my perspective, this is just like an insurance seller undermining the
-competition by comparing the price of his most basic contract with the price 
-of a broader contract (covering more stuff). 
-Yes the basic contract is cheaper but this is comparing apples to
-oranges. That said, that basic contract might very well be sufficient and this
-is what I am going to assess in the next&nbsp;post.</p>
-<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+<p>Beyond demonstrating that the presented multi-armed bandit strategy <strong>is not
+systematically better</strong> than A/B testing, the results outline another important
+fact: this multi-armed bandit strategy requires a larger sample size to provide
+the same practical guarantees as A/B testing.</p>
+<p>From my perspective, this is just like an insurance seller undermining
+the competition by comparing the price of his most basic contract with
+the price of a broader contract (covering more stuff). Yes the basic
+contract is cheaper but this is comparing apples to oranges.</p>
+<p>That said, that basic contract might very well be sufficient for web optimisation
+and this is what I am going to assess in the next post.</p>
+</div>
+<script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
         indent = "0em",
         linebreak = "false";
@@ -183,20 +287,24 @@ is what I am going to assess in the next&nbsp;post.</p>
     (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
 }
 </script>
-    </div><!-- /.entry-content -->
+  </div>
+      <div class="series_links">
+        <a style="float: left;" href='/AB-and-MAB.html'>
+            &lt; Part 2: A/B testing and the multi-armed&nbsp;bandit
+        </a>
+      </div>
+    <div class="series_links">
+        <a style="float: right;" href='/reward-maximisation.html'>
+            Part 4: Reward&nbsp;maximisation &gt;
+        </a>
+    </div>
+    <div style="clear: both;"></div>
+</article>
 
-  </article>
-</section>
-        <section id="extras" class="body">
-        </section><!-- /#extras -->
 
-        <footer id="contentinfo" class="body">
-                <address id="about" class="vcard body">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
-                </address><!-- /#about -->
-
-                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
-        </footer><!-- /#contentinfo -->
-
+    <div id="ending_message">
+      <p>&copy; Gaël. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Giulio Fidente on <a href="https://github.com/gfidente/pelican-svbhack" target="_blank">github</a>. </p>
+    </div>
+  </main>
 </body>
 </html>
