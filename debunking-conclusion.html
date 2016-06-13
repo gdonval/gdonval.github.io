@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Gaël">
+  <meta name="description" content="Posts and writings by Gaël">
+
+
+<meta name="keywords" content="">
+
+  <title>
+    And yet it moves
+&ndash; Debunking and&nbsp;conclusion  </title>
+
+</head>
+
+<body>
+  <aside>
+    <div id="user_meta">
+      <div id="metalogo">
+        <a href="/">
+          <img src="/images/logo.svg" alt="logo" id="logo">
+        </a>
+        <a href="/" id="title">And yet it moves</a>
+      </div>
+      <p></p>
+      <ul>
+            <li><a href="/category/data-processing.html" class="active">Data processing</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <p>
+      <a href="/">Index</a> &brvbar; <a href="/archives.html">Archives</a>
+      </p>
+    </header>
+
+<article>
+      <div class="series_links">
+        <a style="float: left;" href='/basics.html'>
+            &lt;&lt; First article of the series
+        </a>
+      </div>
+  <div class="article_meta">
+    <p style="text-align: right; margin: 0;">Posted on: Thu, 19 May 2016</p>
+  </div>
+  <div class="article_title">
+    <h3><a href="/debunking-conclusion.html">Debunking and&nbsp;conclusion</a></h3>
+  </div>
+  <div class="article_text">
+    <p>Until now, I have spent time (and <span class="caps">CPU</span> power) to precisely illustrate
+what the two methods were designed for:</p>
+<ul class="simple">
+<li>A/B testing efficiently answers the question <em>is there a difference?</em></li>
+<li>The <span class="caps">MAB</span> strategy provides the highest click-through rates over a
+wider range of sample sizes.</li>
+</ul>
+<p>As their respective purposes are completely different, thinking of one
+of them as intrinsically better than the other is <strong>nonsensical</strong>,
+especially as we have shown that <strong>each</strong> method is clearly better than
+the other at what it was designed for. Therefore saying that one is
+always better than the other is saying that a screwdriver is always better
+than a hammer: it makes absolutely no sense.</p>
+<p>In this last post, I want to talk more precisely about a few specific claims of
+the original blog post to show why I think they were made but also how they can
+be misleading and misunderstood.</p>
+<div class="section" id="no-the-multi-armed-bandit-strategy-is-not-always-better">
+<h2 id="no-the-multi-armed-bandit-strategy-is-not-always-better">No, the multi-armed bandit strategy is not always better</h2>
+<p>Let me quote the original blog post:</p>
+<blockquote>
+<p>20 lines of code that will beat A/B testing every time</p>
+<p>A/B testing is used far too often, for something that performs so badly.
+It is defective by design.</p>
+</blockquote>
+<p>The author seems to completely disregard the actual <em>testing</em> step in A/B
+testing. In particular, he never <strong>ever</strong> spoke about confidence, significance or
+power. As this is what A/B testing was designed for, I can easily understand
+that the trade-off made to achieve this level of guarantees seems “defective by
+design” to someone who don’t care whether or not his results can be trusted or not.</p>
+<p>A second explaining element could be a slight misunderstanding
+of how a complete A/B testing campaign should be performed.
+He seems to think that the data-gathering stage should be as long as a
+complete multi-armed bandit campaign (i.e. equal sample size, possibly in a
+set-and-forget mode).
+Since the asymptotic behavior of the A/B testing data-gathering method is much
+worse than the one of the presented multi-armed bandit strategy, that seems
+like a huge mistake… The author is right!
+That’s why in A/B testing, a <strong>sample size is
+chosen</strong> from the start depending on the guarantees we want to have in a fashion
+that the author actually <strong>recommends</strong> later in the post:</p>
+<blockquote>
+There are several variations of the epsilon-greedy strategy.
+In the epsilon-first strategy, you can explore <span class="math">\(100\%\)</span> of the time in
+the beginning and once you have a good sample, switch to pure-greedy.</blockquote>
+<p>If you estimate that “good sample” size using the contingency test, this is a
+<strong>precise and exact</strong> description of what A/B testing is.</p>
+<p><em>Wait a minute, so what is he comparing his multi-armed bandit algorithm to
+then?</em> By disregarding the actual testing and the effect of the sample size,
+he is actually comparing his algorithm twice
+once at <span class="math">\(\varepsilon = 0\%\)</span> and once at <span class="math">\(\varepsilon = 90\%\)</span>.</p>
+<p>As a last comment, I have shown at length that the A/B testing data-gathering
+method (aka. 2-staged <span class="caps">MAB</span> at <span class="math">\(\varepsilon = 0\%\)</span>) does beat the
+multi-armed bandit method at higher <span class="math">\(\varepsilon\)</span> over a range of sample sizes.</p>
+</div>
+<div class="section" id="yes-a-b-testing-can-handle-more-than-two-options-at-once">
+<h2 id="yes-ab-testing-can-handle-more-than-two-options-at-once">Yes, A/B testing can handle more than two options at once</h2>
+<p>Quote:</p>
+<blockquote>
+[<span class="caps">MAB</span> unlike <span class="caps">AB</span> testing] can reasonably handle more than two options at once.</blockquote>
+<p>The blogger is correct there by definition: A/B testing is the two-option
+(called, you have guessed it, <span class="math">\(A\)</span> and <span class="math">\(B\)</span>) variant of what is
+called <em>bucket testing</em>. So while the claim is semantically true, it is
+misleading: the method itself can handle as many variant as needed, the only
+difference is that it merely <em>changes names</em> when there are only two variants.</p>
+<p>In practice, because A/B testing is the presented multi-armed bandit
+strategy at <span class="math">\(\varepsilon = 0\%\)</span> plus a contingency test, if one is
+capable of handling more than 2 options, the other should (except if the
+difference is in the test, which is not the case).</p>
+<p>As well, if removing or adding an option in an existing campaign is deemed safe
+in the presented multi-armed bandit strategy, it should be considered safe also
+in A/B testing because the contingency test does not require that each variant
+is provided as often.</p>
+</div>
+<div class="section" id="yes-the-mab-strategy-does-skew-the-results">
+<h2 id="yes-the-mab-strategy-does-skew-the-results">Yes, the <span class="caps">MAB</span> strategy does skew the results</h2>
+<p>I completely share that impression with the author:</p>
+<blockquote>
+Statistics are hard for most people to understand.</blockquote>
+<p>One thing that people seem to have a hard time to understand is that if you
+change your sampling behaviour depending on the data gathered so far, it is
+highly probable that you are going to introduce a bias that will skew your data.</p>
+<p>Back to the original blog post, the blogger claimed:</p>
+<blockquote>
+Showing the different options at different rates will skew the
+results. (No it won’t. You always have an estimate of the click
+through rate for each choice)</blockquote>
+<p>That claim is rather strange: having data does not mean these data are
+not skewed and of course showing different options at different rate
+won’t (usually) skew the results… however, as I said, changing these
+rates <strong>according</strong> to the measurements most likely will…</p>
+<p>So how can I prove that? I already gave an hint earlier in the series in
+that figure:</p>
+<div class="figure">
+<img alt="" src="/images/difference_vs_sample_size.svg"/>
+<p class="caption">Difference in click-through rates vs. the sample size for both methods.</p>
+</div>
+<p>As I said at the time, there seems to be a remaining difference at
+higher sample sizes but it is not obvious and really small.
+I can plot the corresponding distribution of values at a given sample size:</p>
+<div class="figure">
+<img alt="" src="/images/dist_difference_vs_sample_size.svg"/>
+<p class="caption">Distribution of the difference in click-through rate between the two
+variants <span class="math">\(A\)</span> (orange) and <span class="math">\(B\)</span> (green button) at a sample
+size of <span class="math">\(5000\)</span>.
+They are almost Gaussian-shaped which confirms that we were allowed to
+calculate the arithmetic mean and represent it in the figure above.
+The real (and hidden) click-through rate are different (<span class="math">\(5\%\)</span>).</p>
+</div>
+<p>and the same conclusion as above applies: <strong>if</strong> there is a skew, it is not
+really visible. The two distributions are centered on <span class="math">\(5\%\)</span> and
+roughly Gaussian-shaped.</p>
+<p>But let’s try again in a situation where the algorithm is more likely
+to switch more often. It would do so by using the data gathered until then
+and if there is a skew in the distribution, it should be far more visible that way:</p>
+<div class="figure">
+<img alt="" src="/images/dist_zero_difference_vs_sample_size.svg"/>
+<p class="caption">Distribution of the difference in click-through rate between the two
+variants <span class="math">\(A\)</span> (orange) and <span class="math">\(B\)</span> (green button) at a sample
+size of <span class="math">\(5000\)</span>. The real (and hidden) click-through rates are equal.</p>
+</div>
+<p>And here we are: the depression at <span class="math">\(0\%\)</span> should not exist. This proves
+that the data is skewed by the method. I could also calculate the difference between
+the favoured and disfavoured variant in both methods:</p>
+<div class="figure">
+<img alt="" src="/images/abs_dist_zero_difference_vs_sample_size.svg"/>
+<p class="caption">Distribution of the difference in click-through rate between the
+favoured and the disfavoured
+variants at a sample
+size of <span class="math">\(5000\)</span>. The real (and hidden) click-through rates are equal.</p>
+</div>
+<p>We can observe that:</p>
+<ul class="simple">
+<li>in the case of A/B testing, the distribution is a half of a Gaussian
+with its maximal value reached at <span class="math">\(0\%\)</span>, as expected;</li>
+<li>in the case of the <span class="caps">MAB</span> strategy, the distribution is not Gaussian
+anymore and the maximal value is reach at <span class="math">\(0.4\%\)</span>.</li>
+</ul>
+<p>This is an issue for two reasons:</p>
+<ol class="arabic simple">
+<li>Actually the individual click-through rate distributions are skewed
+too, which basically means that we <strong>cannot trust</strong> any contingency test
+performed on the data gathered using that strategy.</li>
+<li>There is no way to know whether a given difference is <strong>actually</strong> a difference.</li>
+</ol>
+<p>So, not only is the correct estimation of a minimal sample size already a
+challenge using the presented multi-armed bandit algorithm, testing these
+results would also be very challenging because the method itself introduces a
+difference that is not accounted for in the testing.</p>
+</div>
+<div class="section" id="no-test-no-confidence-no-conclusion">
+<h2 id="no-test-no-confidence-no-conclusion">No test, no confidence: no conclusion?</h2>
+<p>Most people seem to forget completely about the test part of A/B
+<strong>testing</strong>. The reasoning here, as seen elsewhere, is that whether or
+not the test is positive, what appears to be the best-performing variant
+would be used anyway. Therefore the test itself is useless; A/B testing
+itself is useless; A/B testing can be replaced with something providing
+higher click-through rates.</p>
+<p>But the actual <em>test</em> in A/B testing is actually intended as a feedback,
+a way to <strong>estimate</strong> your confidence in the results you obtained and
+make decisions with both pieces of informations. In contrast, the <span class="caps">MAB</span>
+strategy seems to be used far more often relying on one’s “good luck”:
+it is <strong>assumed</strong> that the population is large enough to eventually
+provide meaningful results and the problem is precisely that this is
+<strong>usually</strong> true.</p>
+<p>Think of a successful campaign as a light bubble. When you switch it on,
+you expect to get light and this is what <strong>usually</strong> happens. The <span class="caps">MAB</span>
+strategy is like saying “let’s ask a blind person to turn that light on:
+he will move more easily in the dark, in that sense he will be more
+efficient for the job”. On the other hand, the A/B testing method would
+be more like saying “let’s ask a sighted person to switch it on because
+he needs to know whether he was successful and report back”. Yes, in
+most cases, the light will be on anyway! However, there is no way to
+detect that the light did not turn on for whatever reason in the <span class="caps">MAB</span> strategy.</p>
+<p>Mind you, the final and allegedly real results given in the original
+blog post do not even pass the contingency test (the minimal
+<span class="math">\(p\)</span>-values is only <span class="math">\(0.25\)</span>). So strictly speaking, his
+conclusions are questionable, especially given that the <span class="caps">MAB</span> strategy is
+known to introduce such a difference.</p>
+</div>
+<div class="section" id="conclusion">
+<h2 id="conclusion">Conclusion</h2>
+<div class="section" id="other-drawbacks">
+<h3 id="other-drawbacks">Other drawbacks</h3>
+<p>There are a few moot points that I did not evoke such as the effect of
+time-varying click-through rates, the effect of the lack of
+equally-sampled control group, the implications of the actual overlap of
+the click-through rate distributions depending on the method used, the
+relative spread of the distributions, etc. I decided not to include them
+because the most disastrous outcomes would require stringent (albeit not
+that rare) requirements. I did not want to weaken the whole series
+because some would dismiss these arguments saying “what are the odds?”.</p>
+</div>
+<div class="section" id="of-hammers-and-screwdrivers">
+<h3 id="of-hammers-and-screwdrivers">Of hammers and screwdrivers</h3>
+<p>As surprising as it may appear, A/B testing and the multi-armed bandit
+strategy were designed for two completely different purposes:</p>
+<ul class="simple">
+<li>The purpose of A/B testing is to determine whether or not there is a
+difference and provide that answer (with the uncertainties) through a
+statistical test.</li>
+<li>The purpose of the multi-armed bandit strategy is to maximize the
+reward over a large range of sample sizes. Usually it can (and
+rigorously should) be used in a set-and-forget mode.</li>
+</ul>
+<p>These methods are just like a hammer and a screwdriver: both can be used
+to do nearly the same thing, yet cannot really be freely swapped.</p>
+</div>
+<div class="section" id="when-should-i-choose-a-b-testing">
+<h3 id="when-should-i-choose-ab-testing">When should I choose A/B testing?</h3>
+<ul class="simple">
+<li>When you need to really determine which variant is better (e.g. drug trials).</li>
+<li>When you need to estimate the difference precisely, without bias (e.g. multivariate analysis).</li>
+<li>When you need the shortest testing period possible for a given
+confidence in the results.</li>
+<li>When you need to know the uncertainties on the results.</li>
+<li>When you need to assess that there is actually no difference.</li>
+</ul>
+</div>
+<div class="section" id="when-should-i-use-the-mab-strategy">
+<h3 id="when-should-i-use-the-mab-strategy">When should I use the <span class="caps">MAB</span> strategy?</h3>
+<ul class="simple">
+<li>When being sometimes wrong without any indication of it is not that important.</li>
+<li>When you cannot setup an optimal A/B testing campaign because you
+lack too much information (minimum population size, estimate of the
+difference, etc.).</li>
+</ul>
+</div>
+<div class="section" id="the-end">
+<h3 id="the-end">The End?</h3>
+<p>What this post series lacks (as most posts out there) are references: I
+am pretty sure that all this work and far far more has already been done
+by people out there. Though I cannot personally recommend it (as I have
+not read it), I know there is a short <a class="reference external" href="http://shop.oreilly.com/product/0636920027393.do?sortby=publicationDate">O’Reilly
+book</a>
+on the subject of bandit algorithms in general. I also know that there
+are a lot of references in Google scholar about both methods.</p>
+<p>Literature scanning is not just for scientist: it is necessary to
+efficiently reuse the knowledge humankind already gathered on the
+subject in order to eventually avoid the traps, pitfalls and
+inefficiencies caused by starting from scratch. I am sure a lot of great
+minds already worked on this, this is what you should read, not some
+random blog posts on the internet if you really want to do things correctly.</p>
+<p>As far as this blog is concerned, it just started out as a few tests and
+it is mainly intended to show once again that the world is not just
+black and white.</p>
+</div>
+</div>
+<script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+  </div>
+      <div class="series_links">
+        <a style="float: left;" href='/reward-maximisation.html'>
+            &lt; Part 4: Reward&nbsp;maximisation
+        </a>
+      </div>
+    <div style="clear: both;"></div>
+</article>
+
+
+    <div id="ending_message">
+      <p>&copy; Gaël. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Giulio Fidente on <a href="https://github.com/gfidente/pelican-svbhack" target="_blank">github</a>. </p>
+    </div>
+  </main>
+</body>
+</html>

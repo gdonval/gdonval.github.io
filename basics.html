@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Gaël">
+  <meta name="description" content="Posts and writings by Gaël">
+
+
+<meta name="keywords" content="">
+
+  <title>
+    And yet it moves
+&ndash; Basics of testing for web&nbsp;optimisation  </title>
+
+</head>
+
+<body>
+  <aside>
+    <div id="user_meta">
+      <div id="metalogo">
+        <a href="/">
+          <img src="/images/logo.svg" alt="logo" id="logo">
+        </a>
+        <a href="/" id="title">And yet it moves</a>
+      </div>
+      <p></p>
+      <ul>
+            <li><a href="/category/data-processing.html" class="active">Data processing</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <p>
+      <a href="/">Index</a> &brvbar; <a href="/archives.html">Archives</a>
+      </p>
+    </header>
+
+<article>
+  <div class="article_meta">
+    <p style="text-align: right; margin: 0;">Posted on: Thu, 12 May 2016</p>
+  </div>
+  <div class="article_title">
+    <h3><a href="/basics.html">Basics of testing for web&nbsp;optimisation</a></h3>
+  </div>
+  <div class="article_text">
+    <p>I recently stumbled across a <a class="reference external" href="https://redd.it/4dlioz">reddit link</a> to
+a (now 3-year-old) blog post presenting a multi-armed bandit strategy
+claimed to maximize the click-through rate even during the
+data-gathering stage of the optimization process.</p>
+<p>That original blog post was rather disappointing: many bold claims with
+very little or no data, demonstrations nor references to support them.
+Yet most of the claims are exceptional and therefore require exceptional
+proofs. For instance (emphasis is mine):</p>
+<blockquote>
+<p>20 lines of code that will beat A/B testing <strong>every time</strong></p>
+<p>A/B testing is used <strong>far too often</strong>, for something that performs
+<strong>so badly</strong></p>
+<p>you can <strong>always</strong> do better than A/B testing — sometimes, <strong>two or
+three times</strong> better</p>
+</blockquote>
+<p>That post really piqued my curiosity and I started my own Monte-Carlo
+simulations wondering <em>when</em> these claims would be wrong.
+This is what I am about to present in this series of posts.</p>
+<!-- PELICAN_END_SUMMARY -->
+<div class="section" id="choosing-the-best-option">
+<h2 id="choosing-the-best-option">Choosing the best option</h2>
+<p>Have you ever been given a choice that you found very hard to make?</p>
+<p>Whether you don’t like the outcomes or just <em>don’t know</em> what they are bound to
+be, some decisions are tough to make.
+Yet, there are ways to estimate what the outcomes would be
+by resorting to pure intuition, common sense, existing knowledge, experiments
+or even fancy mathematical models.</p>
+<p>The web-service realm is full of tough choices like this.
+<em>Should I place the image on the left or on the right of the website? Should I
+stack the navigation bar buttons horizontally or vertically? Should I colourise
+that button in orange or green?</em> etc.</p>
+</div>
+<div class="section" id="website-optimisation">
+<h2 id="website-optimisation">Website optimisation</h2>
+<p><em>Is that a joke?</em> could you ingenuously say…</p>
+<p>Well, did you know that a simple <a class="reference external" href="http://dx.doi.org/10.1111/j.1745-459X.2012.00397.x">cup colour could change the way you taste
+chocolate</a>?
+In a similar manner, even a seemingly trifling alteration (like a change of colour)
+<em>could</em> have a significant impact on the user behaviour on your website and
+consequently on what usually counts: the sales.</p>
+<p>Changing the semantics, presentation and behaviour of a website
+to favour a particular set of user  behaviours
+is what is usually called <em>website optimisation</em>. That optimisation
+can be performed using pure intuition, common sense, existing knowledge,
+<em>etc</em>. However, some tools have been available for a while to make our
+decisions out of real-world data and modelling (e.g. statistics).</p>
+</div>
+<div class="section" id="of-time-machines">
+<h2 id="of-time-machines">Of time machines</h2>
+<div class="figure align-left">
+<object data="/images/time_machine.svg" type="image/svg+xml">
+</object>
+</div>
+<p>Now if we think about it, what should we do to to figure out which variant
+would provide the greatest number of clicks among our visitors without ever
+being wrong?</p>
+<p>For instance, let’s say we have two variants of the same website with an orange and a
+green <em>Buy Now!</em> button, respectively. We would like to determine which button
+would yield the greatest conversion/click-through rate (i.e. the greatest number
+of clicks divided by the number of visitors). How can we do this without making
+<strong>any</strong> assumptions and be correct each time? I am afraid we would have to rely
+on our beloved <em>time machine</em>:</p>
+<div class="figure">
+<object data="/images/choice.svg" type="image/svg+xml">
+</object>
+<p class="caption">The only way to guarantee “if we use that variant we will specifically
+get a conversion (or click-through) rate of <span class="math">\(P(\text{clicks}|\text{event}) = X\%\)</span>” is to perform the
+measurement in different timelines on the entire population (i.e. <strong>all</strong>
+the visitors of the website) using a time machine.</p>
+</div>
+<p>Obviously, with such a machine, it would be possible to increase even more the
+number of clicks by providing each user with a variant that we know will result
+in a click. But that’s a bit beyond the point here.</p>
+</div>
+<div class="section" id="of-statistics">
+<h2 id="of-statistics">Of statistics</h2>
+<p>Unfortunately, time machines are illegal (they break a handful of physical
+laws and trust me, you don’t want to meddle with Laplace demons). So what can
+we do? We could begin by making a few simplifying assumptions about the world
+and human beings in general:</p>
+<ol class="arabic simple">
+<li>The click-through rate exists.</li>
+<li>It has a definite value that is an intrinsic property of human beings.</li>
+<li>That value depends on factors such as the button colour.</li>
+<li>Factors other than the button colour (i.e. uncontrolled factors here)
+are randomised and their effect on the click-through rate is supposed
+to be random.</li>
+<li>Large random fluctuations are less probable than small ones.</li>
+</ol>
+<p>By making these assumptions, we can devise a perfectly legal method to estimate
+the click-through rate: given an infinite population, a subpart of it should be
+given the first variant (<object class="align-middle" data="/images/orange_btn.svg" type="image/svg+xml">orangeBtn</object>) and the rest should be given the second
+variant (<object class="align-middle" data="/images/green_btn.svg" type="image/svg+xml">greenBtn</object>). The click-through rate would be estimated by dividing the
+number of clicks given a specific variant by the number of impressions of that variant!</p>
+</div>
+<div class="section" id="sampling">
+<h2 id="sampling">Sampling</h2>
+<p>However, there is no such thing as an infinite number of visitors.
+So what would happen if we were only given a finite
+<strong>sample</strong> of the supposedly infinite population of our visitors-to-be?
+We would be subjected to a dreadful situation: <em>we could be wrong</em>.
+Alas! We could determine that one variant performs better while it does not!
+Sampling is the original sin of probabilities, the one that could cause our downfall.</p>
+<p>This is all the more frustrating that a finite number of visitors also has
+another insidious effect: if we “spend” all these visitors to determine the
+best variant, what should we do with it? No one is there left to be served that
+click-enhancing variant. This is why web optimisation is often split into two stages:</p>
+<ol class="arabic">
+<li><p class="first">An <strong>exploration</strong> stage where all the variants are provided to estimate the
+respective click-through rate of each of them:</p>
+<div class="figure">
+<object data="/images/exploration.svg" type="image/svg+xml">
+</object>
+<p class="caption">The exploration stage consists in estimating the click-through
+rate on a limited number of visitors. This estimate
+<span class="math">\(\tilde{P}(\text{clicks}|\text{event})\)</span> can then be used to
+determine which variant should be served to the rest of the visitors.
+The population here is already a finite group of people: the website visitors.</p>
+</div>
+</li>
+<li><p class="first">An <strong>exploitation</strong> stage where the best-performing variant (the one
+yielding the greatest number of clicks) is always served:</p>
+<div class="figure">
+<object data="/images/exploitation.svg" type="image/svg+xml">
+</object>
+<p class="caption">The exploitation stage consists in providing the variant which exhibited
+the greatest click-through rate in the former exploration stage.</p>
+</div>
+</li>
+</ol>
+<p>These stages summarise nicely why we did all of this in the first place:
+gaining knowledge (exploration) in order to maximize the reward (the number of
+clicks in the exploitation stage).</p>
+</div>
+<div class="section" id="the-devil-s-tail">
+<h2 id="the-devils-tail">The devil’s tail</h2>
+<p><em>Problem solved!</em> you said? Hell no! The devil’s in the details: as we said,
+the real click-through rate for each variant is hidden by random fluctuations
+and these fluctuations are the reason why we could be wrong: determining
+whether a difference can be attributed to random variations alone is very complex.</p>
+<p>Let’s see… Imagine that we are throwing a 6-sided dice <span class="math">\(1000\)</span> times. We count
+the number of time any given side has showed up. Once this is done, we can
+calculate how often a given side showed up by dividing that count by the total
+number of throws. According to assumptions similar to the ones we made above,
+these frequencies are actually estimates of the hidden truth: the actual
+probability that any side shows up. We obtained the following values:</p>
+<div class="figure">
+<object data="/images/dice.svg" type="image/svg+xml">
+</object>
+<p class="caption">This is the <em>distribution</em> of the frequencies we obtained for each side of
+a 6-sided dice by throwing it <span class="math">\(1000\)</span> times. The value <span class="math">\(1/6\)</span> should be
+reached for a perfectly fair dice.</p>
+</div>
+<p><strong>But is that dice actualy fair?</strong> The frequency/probability values alone are <strong>not</strong> enough
+to answer that question: what is “too much” of a difference to be attributed to
+random fluctuations alone?
+can the fairness of the dice really be questioned from these data?</p>
+<p>This is the whole point of testing. Similarly, we could ask whether
+my <object class="align-middle" data="/images/orange_btn.svg" type="image/svg+xml">orangeBtn</object> variant really performing better than my <object class="align-middle" data="/images/green_btn.svg" type="image/svg+xml">greenBtn</object> variant?</p>
+</div>
+<script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+  </div>
+    <div class="series_links">
+        <a style="float: right;" href='/AB-and-MAB.html'>
+            Part 2: A/B testing and the multi-armed&nbsp;bandit &gt;
+        </a>
+    </div>
+    <div style="clear: both;"></div>
+</article>
+
+
+    <div id="ending_message">
+      <p>&copy; Gaël. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Giulio Fidente on <a href="https://github.com/gfidente/pelican-svbhack" target="_blank">github</a>. </p>
+    </div>
+  </main>
+</body>
+</html>

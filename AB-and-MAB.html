@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Gaël">
+  <meta name="description" content="Posts and writings by Gaël">
+
+
+<meta name="keywords" content="">
+
+  <title>
+    And yet it moves
+&ndash; A/B testing and the multi-armed&nbsp;bandit  </title>
+
+</head>
+
+<body>
+  <aside>
+    <div id="user_meta">
+      <div id="metalogo">
+        <a href="/">
+          <img src="/images/logo.svg" alt="logo" id="logo">
+        </a>
+        <a href="/" id="title">And yet it moves</a>
+      </div>
+      <p></p>
+      <ul>
+            <li><a href="/category/data-processing.html" class="active">Data processing</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <p>
+      <a href="/">Index</a> &brvbar; <a href="/archives.html">Archives</a>
+      </p>
+    </header>
+
+<article>
+      <div class="series_links">
+        <a style="float: left;" href='/basics.html'>
+            &lt;&lt; First article of the series
+        </a>
+      </div>
+  <div class="article_meta">
+    <p style="text-align: right; margin: 0;">Posted on: Mon, 06 Jun 2016</p>
+  </div>
+  <div class="article_title">
+    <h3><a href="/AB-and-MAB.html">A/B testing and the multi-armed&nbsp;bandit</a></h3>
+  </div>
+  <div class="article_text">
+    <div class="section" id="a-b-testing">
+<h2 id="ab-testing">A/B testing</h2>
+<p>This is exactly why some methods, such as A/B testing
+(<a class="reference external" href="https://en.wikipedia.org/wiki/A/B_testing">wiki</a>), were devised:
+their only reason of being is to efficiently answer the question
+<em>is there actually a difference?</em></p>
+<p><em>How?</em> As explained above, A/B testing is a two-staged method…</p>
+<p>The <em>exploration stage</em> consists in providing each variant with the same
+probability. In our web optimisation case, this means that any given visitor
+has actually a <span class="math">\(50\%\)</span> chance of getting <object class="align-middle" data="/images/orange_btn.svg" type="image/svg+xml">orangeBtn</object> and a
+<span class="math">\(50\%\)</span> chance of getting <object class="align-middle" data="/images/green_btn.svg" type="image/svg+xml">greenBtn</object>:</p>
+<div class="figure">
+<object data="/images/AB_exploration.svg" type="image/svg+xml">
+</object>
+<p class="caption">The exploration stage of the A/B testing method consists in providing
+each variant with (almost) the same frequency: each visitor is as likely
+to be given one variant or the other of the website.</p>
+</div>
+<p>Providing each variant as often is not a requirement of the method <em>per se</em>,
+however we will see that this is a very efficient way to get the most
+significant data out of a finite sample.</p>
+<p>The <em>exploitation stage</em> is composed first of an actual test (called a
+contingency test in this case). The purpose of the test is to answer the
+question <em>is there actually a difference?</em> It does so by estimating what could
+be called a level of confidence:</p>
+<div class="figure">
+<object data="/images/AB_exploitation.svg" type="image/svg+xml">
+</object>
+<p class="caption">The exploitation stage of the A/B testing method starts with a statistical
+test called a contingency test. The purpose of this test is to estimate
+whether there is actually a difference or not. If there is, the best
+performing variant is served to all the remaining visitors. If it is not,
+one version can be chosen out of other considerations such as aestetics
+or convenience or it can be chosen at random.</p>
+</div>
+<p>In the specific dice-throwing case we presented above, there is
+<span class="math">\(1\)</span> chance out of <span class="math">\(5\)</span> that we would be wrong in saying
+there is actually a difference. This proportion is an estimate of the level of
+confidence we have in that result.</p>
+</div>
+<div class="section" id="the-multi-armed-bandit-method">
+<h2 id="the-multi-armed-bandit-method">The multi-armed bandit method</h2>
+<p>The multi-armed bandit method was allegedly designed for only one purpose:</p>
+<blockquote>
+Maximizing the reward provided by the random process.</blockquote>
+<p>The particular multi-armed bandit strategy presented in the original blog post
+mixes the exploration and exploitation stages:</p>
+<div class="figure">
+<object data="/images/MAB_expl.svg" type="image/svg+xml">
+</object>
+<p class="caption">In the multi-armed bandit method, the exploration and exploitation stages
+are mixed: the conversion rate is updated each time a visitor comes to the
+website. The variant yielding the best conversion rate is then favored: it
+has a higher chance of being served. That imbalance is set as
+<span class="math">\(\varepsilon\)</span> in the original blog post.</p>
+</div>
+<p>The algorithm serves each variant with an equal probability
+<span class="math">\(1 - \varepsilon\)</span> of the time and it serves the best-performing variant
+<span class="math">\(\varepsilon\)</span> of the time (in the example above,
+<span class="math">\(\varepsilon = 90\%\)</span>).</p>
+<p>This algorithm can conveniently be expressed conflating the two stages by
+defining the probability of serving the favoured event (i.e. currently best
+performing variant) and the disfavoured one:</p>
+<div class="math">
+\begin{equation*}
+P(\text{disfavoured}) = \frac{1 - \varepsilon}{\text{number of variants}}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\text{and}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+P(\text{favoured}) = \varepsilon + P(\text{disfavoured})
+\end{equation*}
+</div>
+<p>This is what is called the <em>set-and-forget</em> mode by the original blog author.</p>
+<p>As per the author suggestions, that method could be extended to include a
+contingency test. It could also be use in a similar fashion as A/B testing with
+a first stage consisting in the multi-armed bandit algorithm followed by a
+second stage of exploitation.</p>
+</div>
+<div class="section" id="main-differences-between-the-methods">
+<h2 id="main-differences-between-the-methods">Main differences between the methods</h2>
+<p>In practice, both methods could be used in the <em>two-stepped</em> mode and a
+contingency test can be performed in both.
+So what is the real core difference?</p>
+<blockquote>
+A/B testing serves each variant as often whereas the <span class="caps">MAB</span> strategy
+favours one at any given time.</blockquote>
+<p>This seemingly simple difference however has large implications as we are going
+to see.</p>
+<p>However, in contrast with a few claims of the original blog post:</p>
+<ul class="simple">
+<li>A/B testing is only a specific name given to a 2-variant <strong>bucket
+tests</strong> (<span class="math">\(A\)</span> and <span class="math">\(B\)</span>, you guessed it). However nothing
+prevents us from using it on more variants
+(<a class="reference external" href="https://en.wikipedia.org/wiki/Fisher's_exact_test">Fisher’s exact test</a>
+the contingency test for that kind of Bernoulli processes, can
+be used on any number of variants or all the variants can be compared 2-by-2).</li>
+<li>Variants can be added or removed any time (provided the same amount of care).
+In particular, A/B testing
+does not <em>require</em> the variants to be served as often to work.
+However, serving them as often at any given time is actually more
+efficient and prevents a whole class of biases (I will come to that later).</li>
+</ul>
+</div>
+<div class="section" id="sample-size">
+<h2 id="sample-size">Sample size</h2>
+<p>Fisher’s contingency test can be used to calculate the minimum sample size to
+be used in the exploration stage given a level of significance and a test power:</p>
+<ul class="simple">
+<li>The <strong>level of significance</strong> is the probability of <em>correctly</em> concluding that the
+different variants (<object class="align-middle" data="/images/orange_btn.svg" type="image/svg+xml">orangeBtn</object> and <object class="align-middle" data="/images/green_btn.svg" type="image/svg+xml">greenBtn</object>) have no significant impact on
+the outcome (conversion rate).</li>
+<li>The <strong>power</strong> is the probability of correctly concluding that the
+different variants have an impact on the outcome.</li>
+</ul>
+<p>However we are going to see that this estimation is only trivially possible in
+the A/B testing framework.</p>
+</div>
+<script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+  </div>
+      <div class="series_links">
+        <a style="float: left;" href='/basics.html'>
+            &lt; Part 1: Basics of testing for web&nbsp;optimisation
+        </a>
+      </div>
+    <div class="series_links">
+        <a style="float: right;" href='/pros-of-AB-testing.html'>
+            Part 3: The pros of the A/B testing&nbsp;method &gt;
+        </a>
+    </div>
+    <div style="clear: both;"></div>
+</article>
+
+
+    <div id="ending_message">
+      <p>&copy; Gaël. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Giulio Fidente on <a href="https://github.com/gfidente/pelican-svbhack" target="_blank">github</a>. </p>
+    </div>
+  </main>
+</body>
+</html>

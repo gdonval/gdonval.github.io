@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="/theme/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css">
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=PT+Sans|PT+Serif|PT+Mono">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Gaël">
+  <meta name="description" content="Posts and writings by Gaël">
+
+
+<meta name="keywords" content="">
+
+  <title>
+    And yet it moves
+&ndash; <span class="caps">MAB</span> other drawbacks and&nbsp;conclusion, Multi-armed bandit vs. A/B testing for web service&nbsp;optimization  </title>
+
+</head>
+
+<body>
+  <aside>
+    <div id="user_meta">
+      <div id="metalogo">
+        <a href="/">
+          <img src="/images/logo.svg" alt="logo" id="logo">
+        </a>
+        <a href="/" id="title">And yet it moves</a>
+      </div>
+      <p></p>
+      <ul>
+            <li><a href="/category/data-processing.html" class="active">Data processing</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <p>
+      <a href="/">Index</a> &brvbar; <a href="/archives.html">Archives</a>
+      </p>
+    </header>
+
+<article>
+      <div class="series_toc">
+          <p>This post is part 6 of the "AB vs. MAB" series:</p>
+          <ol class="parts">
+                  <li >
+    <a href='/AB-vs-MAB.html'>Multi-armed bandit vs. A/B testing for web service&nbsp;optimization</a>
+                  </li>
+                  <li >
+    <a href='/AB-vs-MAB--basics.html'>Basics of testing for web&nbsp;optimisation, Multi-armed bandit vs. A/B testing for web service&nbsp;optimization</a>
+                  </li>
+                  <li >
+    <a href='/AB-vs-MAB--making-a-choice.html'>Choosing the best&nbsp;variant, Multi-armed bandit vs. A/B testing for web service&nbsp;optimization</a>
+                  </li>
+                  <li >
+    <a href='/AB-vs-MAB--pros-of-AB-testing.html'>The pros of the A/B testing&nbsp;method, Multi-armed bandit vs. A/B testing for web service&nbsp;optimization</a>
+                  </li>
+                  <li >
+    <a href='/AB-vs-MAB--reward-maximisation.html'>Reward&nbsp;maximisation, Multi-armed bandit vs. A/B testing for web service&nbsp;optimization</a>
+                  </li>
+                  <li class="active">
+    <a href='/AB-vs-MAB--other-drawbacks-conclusion.html'><span class="caps">MAB</span> other drawbacks and&nbsp;conclusion, Multi-armed bandit vs. A/B testing for web service&nbsp;optimization</a>
+                  </li>
+          </ol>
+      </div>
+  <div class="article_meta">
+    <p style="text-align: right; margin: 0;">Posted on: Thu, 19 May 2016</p>
+  </div>
+  <div class="article_title">
+    <h3><a href="/AB-vs-MAB--other-drawbacks-conclusion.html"><span class="caps">MAB</span> other drawbacks and&nbsp;conclusion, Multi-armed bandit vs. A/B testing for web service&nbsp;optimization</a></h3>
+  </div>
+  <div class="article_text">
+    <p>Until now, I have spent time (and <span class="caps">CPU</span> power) to precisely illustrate
+what the two methods were designed for:</p>
+<ul class="simple">
+<li>A/B testing efficiently answers the question <em>is there a difference?</em></li>
+<li>The <span class="caps">MAB</span> strategy provides the highest click-through rates over a
+wider range of sample sizes.</li>
+</ul>
+<p>As their respective purposes are completely different, thinking of one
+of them as intrinsically better than the other is nonsensical,
+especially as we have shown that <strong>each</strong> method is clearly better than
+the other at what it was designed for. Therefore saying that one is
+better than the other is saying that a screwdriver is better than a
+hammer: it makes absolutely no sense because each of them are useful for
+different things.</p>
+<p>In this last post, I want to lay the emphasis on a few extra drawbacks
+of the <span class="caps">MAB</span> strategy, mostly to show some side effects of the technique
+that were seldom evoked in what I read.</p>
+<div class="section" id="the-mab-strategy-does-skew-the-results">
+<h2 id="the-mab-strategy-does-skew-the-results">The <span class="caps">MAB</span> strategy does skew the results</h2>
+<p>Results are skewed when there is a bias in the measurement process: the
+“ideal” measured value is no longer equal to the hidden “true” value.</p>
+<p>In statistics, there are a few dragons that are known to almost
+invariably skew the results: changing the measurement process using the
+measurements themselves is one of them. The problem is that this kind of
+bias is hard for our brain to grasp and, oddly enough, this is the very
+crux of most probability (false) “paradoxes” (like the Monty-hall
+problem, <a class="reference external" href="https://en.wikipedia.org/wiki/Monty_Hall_problem">wiki
+link</a>).</p>
+<p>Back to the original blog post, the blogger claimed:</p>
+<blockquote>
+Showing the different options at different rates will skew the
+results. (No it won’t. You always have an estimate of the click
+through rate for each choice)</blockquote>
+<p>That claim is rather strange: having data does not mean these data are
+not skewed and of course showing different options at different rate
+won’t (usually) skew the results… however, as I said, changing these
+rates <strong>according</strong> to the measurements most likely will…</p>
+<p>So how can I prove that? I already gave an hint earlier in the series in
+that figure:</p>
+<div class="figure">
+<object data="/images/difference_vs_sample_size.svg" type="image/svg+xml">
+</object>
+<p class="caption">If you can’t see the figure, please try another web browser which
+supports <span class="caps">SVG</span> images</p>
+</div>
+<p>As I said at the time, there seems to be a remaining difference at
+higher sample sizes but it is not obvious and really small. I can also
+plot the distribution of these differences:</p>
+<div class="figure">
+<object data="/images/dist_difference_vs_sample_size.svg" type="image/svg+xml">
+</object>
+<p class="caption">If you can’t see the figure, please try another web browser which
+supports <span class="caps">SVG</span> images</p>
+</div>
+<p>and the same conclusion applies: <strong>if</strong> there is a skew, it is not
+really visible: the two distributions are centered on <span class="math">\(5\%\)</span> and
+roughly Gaussian-shaped (which allowed us to calculate and represent the
+arithmetic mean as the expected value earlier).</p>
+<p>But remember, what <em>usually</em> introduces a skew is altering some
+probabilities somewhere using the data themselves as an input. This
+situation is likely to occur more often if the difference in
+click-through rates is small or even null. I therefore calculated the
+same kind of distributions but in a setup with equal click-through rates:</p>
+<div class="figure">
+<object data="/images/dist_zero_difference_vs_sample_size.svg" type="image/svg+xml">
+</object>
+<p class="caption">If you can’t see the figure, please try another web browser which
+supports <span class="caps">SVG</span> images</p>
+</div>
+<p>The Gaussian-shaped distribution suddenly turned into a very strange
+one: it is still roughly symmetrical but the expected value
+(<span class="math">\(0\%\)</span>) is actually <strong>not</strong> the most probable value anymore.</p>
+<p>As we can already guess, we should be able to see what happens more
+clearly by calculating the difference between the click-though rate of
+the variant which happened to be mostly favored with the one which
+happened to be mostly disfavored. The resulting distribution are
+represented in the following figure:</p>
+<div class="figure">
+<object data="/images/abs_dist_zero_difference_vs_sample_size.svg" type="image/svg+xml">
+</object>
+<p class="caption">If you can’t see the figure, please try another web browser which
+supports <span class="caps">SVG</span> images</p>
+</div>
+<p>We can observe that:</p>
+<ul class="simple">
+<li>in the case of A/B testing, the distribution is a half of a Gaussian
+with its maximal value reached at <span class="math">\(0\%\)</span>, as expected;</li>
+<li>in the case of the <span class="caps">MAB</span> strategy, the distribution is not Gaussian
+anymore and the maximal value is reach at <span class="math">\(0.4\%\)</span>.</li>
+</ul>
+<p>The <span class="caps">MAB</span> strategy therefore skews the data themselves by introducing a
+difference where there shouldn’t be any.</p>
+<p>This is an issue for two reasons:</p>
+<ol class="arabic simple">
+<li>Actually the individual click-through rate distributions are skewed
+too, which basically means that we cannot trust any contingency test
+performed on the data gathered using the <span class="caps">MAB</span> strategy.</li>
+<li>There is no way to know whether a given difference is <strong>actually</strong> a difference.</li>
+</ol>
+<p>These two extra reasons also justify why applying the <span class="caps">MAB</span> strategy to
+drug testing and the likes is a very bad idea.</p>
+</div>
+<div class="section" id="no-test-no-confidence-no-conclusion">
+<h2 id="no-test-no-confidence-no-conclusion">No test, no confidence: no conclusion?</h2>
+<p>Most people seem to forget completely about the test part of A/B
+<strong>testing</strong>. The reasoning here, as seen elsewhere, is that whether or
+not the test is positive, what appears to be the best-performing variant
+would be used anyway. Therefore the test itself is useless; A/B testing
+itself is useless; A/B testing can be replaced with something providing
+higher click-through rates.</p>
+<p>But the actual <em>test</em> in A/B testing is actually intended as a feedback,
+a way to <strong>estimate</strong> your confidence in the results you obtained and
+make decisions with both pieces of informations. In contrast, the <span class="caps">MAB</span>
+strategy seems to be used far more often relying on one’s “good luck”:
+it is <strong>assumed</strong> that the population is large enough to eventually
+provide meaningful results and the problem is precisely that this is
+<strong>usually</strong> true.</p>
+<p>Think of a successful campaign as a light bubble. When you switch it on,
+you expect to get light and this is what <strong>usually</strong> happens. The <span class="caps">MAB</span>
+strategy is like saying “let’s ask a blind person to turn that light on:
+he will move more easily in the dark, in that sense he will be more
+efficient for the job”. On the other hand, the A/B testing method would
+be more like saying “let’s ask a sighted person to switch it on because
+he needs to know whether he was successful and report back”. Yes, in
+most cases, the light will be on anyway! However, there is no way to
+detect that the light did not turn on for whatever reason in the <span class="caps">MAB</span> strategy.</p>
+<p>Mind you, the final and allegedly real results given in the original
+blog post do not even pass the contingency test (the maximal
+<span class="math">\(p\)</span>-values is only <span class="math">\(0.7\)</span>). So strictly speaking, his
+conclusions are questionable, especially given that the <span class="caps">MAB</span> strategy is
+known to introduce such a difference.</p>
+</div>
+<div class="section" id="conclusion">
+<h2 id="conclusion">Conclusion</h2>
+<div class="section" id="other-drawbacks">
+<h3 id="other-drawbacks">Other drawbacks</h3>
+<p>There are a few moot points that I did not evoke such as the effect of
+time-varying click-through rates, the effect of the lack of
+equally-sampled control group, the implications of the actual overlap of
+the click-through rate distributions depending on the method used, the
+relative spread of the distributions, etc. I decided not to include them
+because the most disastrous outcomes would require stringent (albeit not
+that rare) requirements. I did not want to weaken the whole series
+because some would dismiss these arguments saying “what are the odds?”.</p>
+</div>
+<div class="section" id="original-post">
+<h3 id="original-post">Original post</h3>
+<p>I’ve generally not spoken about the original blog itself throughout the
+series. The main reason is that everyone has the right not to be
+completely right and nagging on each moot point would not have been right.</p>
+<p>That said, is seems important to indicate that if one does not want to
+talk about actual A/B <strong>testing</strong>, but A/B testing <strong>data-gathering</strong>
+strategy, it would have been less misleading to talk about <em><span class="caps">MAB</span> with
+:math:`varepsilon = 0%`</em> vs. <em><span class="caps">MAB</span> with :math:`varepsilon = 90%`</em> as
+it is rigorously what is compared in that post.</p>
+<p>As well, A/B testing was not designed in a set-and-forget state of mind:
+there are two different stages (<em>testing</em> and <em>exploitation</em>) that must
+be used. In particular, conflating the two as done in the original post
+is misleading.</p>
+<p>Finally, sorry to raise that specific point but it illustrates well the
+degree of understanding of the original blogger:</p>
+<blockquote>
+In the epsilon-first strategy, you can explore 100% of the time in
+the beginning and once you have a good sample, switch to
+pure-greedy.</blockquote>
+<p>is an <strong>exact and accurate</strong> description of what A/B testing is
+(assuming the “good sample” part is assessed with a contingency test).</p>
+<p>I won’t go further down that road: the point is made and not knowing
+that tiny bit is a shame for someone who blogged about it. But it is
+perfectly understandable and fine (it happens to everyone and I guess
+that series of posts does contain its share of inaccuracies and
+incomplete understanding). In particular, this does not make him a bad
+developer, far from it.</p>
+</div>
+<div class="section" id="of-hammers-and-screwdrivers">
+<h3 id="of-hammers-and-screwdrivers">Of hammers and screwdrivers</h3>
+<p>As surprising as it may appear, A/B testing and the multi-armed bandit
+strategy were designed for two completely different purposes:</p>
+<ul class="simple">
+<li>The purpose of A/B testing is to determine whether or not there is a
+difference and provide that answer (with the uncertainties) through a
+statistical test.</li>
+<li>The purpose of the multi-armed bandit strategy is to maximize the
+reward over a large range of sample sizes. Usually it can (and
+rigorously should) be used in a set-and-forget mode.</li>
+</ul>
+<p>These methods are just like a hammer and a screwdriver: both can be used
+to do nearly the same thing, yet cannot really be freely swapped.</p>
+</div>
+<div class="section" id="when-should-i-choose-a-b-testing">
+<h3 id="when-should-i-choose-ab-testing">When should I choose A/B testing?</h3>
+<ul class="simple">
+<li>When you need to really determine which variant is better (e.g. drug trials).</li>
+<li>When you need to estimate the difference precisely (e.g. multivariate analysis).</li>
+<li>When you need the shortest testing period possible for a given
+confidence in the results.</li>
+<li>When you need to know the uncertainties on the results.</li>
+<li>When you need to assess that there is actually no difference.</li>
+</ul>
+</div>
+<div class="section" id="when-should-i-use-the-mab-strategy">
+<h3 id="when-should-i-use-the-mab-strategy">When should I use the <span class="caps">MAB</span> strategy?</h3>
+<ul class="simple">
+<li>When being sometimes wrong without any indication of it is not that important.</li>
+<li>When you cannot setup an optimal A/B testing campaign because you
+lack too much information (minimum population size, estimate of the
+difference, etc.).</li>
+</ul>
+</div>
+<div class="section" id="the-end">
+<h3 id="the-end">The End?</h3>
+<p>What this post series lacks (as most post out there) are references: I
+am pretty sure that all this work and far far more has already been done
+by people out there. Though I cannot personally recommend it (as I have
+not read it), I know there is a short <a class="reference external" href="http://shop.oreilly.com/product/0636920027393.do?sortby=publicationDate">O’Reilly
+book</a>
+on the subject of bandit algorithms in general. I also know that there
+are a lot of references in Google scholar about both methods.</p>
+<p>Literature scanning is not just for scientist: it is necessary to
+efficiently reuse the knowledge humankind already gathered on the
+subject in order to eventually avoid the traps, pitfalls and
+inefficiencies caused by starting from scratch. I am sure a lot of great
+minds already worked on this, this is what you should read, not some
+random blog posts on the internet if you really want to do things correctly.</p>
+<p>As far as this blog is concerned, it just started out as a few tests and
+it is mainly intended to show once again that the world is not just
+black and white by testing some of the original blogger claims.</p>
+</div>
+</div>
+
+  </div>
+
+</article>
+
+
+    <div id="ending_message">
+      <p>&copy; Gaël. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Giulio Fidente on <a href="https://github.com/gfidente/pelican-svbhack" target="_blank">github</a>. </p>
+    </div>
+  </main>
+</body>
+</html>
